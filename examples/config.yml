@@ -1,0 +1,57 @@
+
+local:
+  PSNR_model: "model/miranda_PSNR_model.sav"
+  CR_model: "model/CR_model.sav"
+  CPTime_model: "model/CPTime_model.sav"
+globus:
+  client_id: "1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2"
+  sender: "bebop"
+  receiver: "anvil"
+bebop:
+  funcx_id: "e4be34fc-903b-4763-b335-d377f3bd4256"
+  uuid: "61f9954c-a4fa-11ea-8f07-0a21f750d19b"
+  cwd: "/lcrc/project/ECP-EZ/Yuanjian/collectData/Dec2-collect"
+  build_folder: "/home/ac.yuanjian/Research/SZ3-predict-2022/build/examples/"
+  collect: "sz3_collect"
+  verify: "sz_verify"
+  compress: "sz3_compress"
+  decompress: "sz3_decompress"
+  mpi_compress: "sz3_mpi_compress_multi_file"
+  mpi_decompress: "sz3_mpi_decompress_multi_file"
+  job_config:
+    dataset_path: "/lcrc/project/ECP-EZ/public/compression/Miranda/miranda-3k/split-data/AllF32"
+    output_path: "Miranda-Feb24"
+    output_filename: "Feb24Miranda.sz3one"
+    dimension: "256 384 384"
+    eb: 0.0001
+    sz3_config: "/lcrc/project/ECP-EZ/Yuanjian/collectData/Dec2-collect/sz3.config"
+    partition: knlall
+    account: ECP-EZ
+    nodes: 1
+    ntasks_per_node: 128
+    name: mpi-cp
+    time: "00:05:00"
+anvil:
+  funcx_id: "0e3b1a2c-975f-4740-8fb8-31fd2d0fae4a"
+  uuid: "c42f0096-2d87-42f9-8e6a-edd08f2e1834"
+  cwd: "/home/x-yliu4/feb24-transfer"
+  build_folder: "/home/x-yliu4/SZ3-predict-2022/build/examples/"
+  mpi_compress: "sz3_mpi_compress_multi_file"
+  mpi_decompress: "sz3_mpi_decompress_multi_file"
+  collect: "sz3_collect"
+  verify: "sz_verify"
+  compress: "sz3_compress"
+  decompress: "sz3_decompress"
+  job_config:
+    dataset_path: "/anvil/scratch/x-yliu4/MirandaAllF32/"
+    output_path: "compressedMiranda/"
+    output_filename: "jan9Miranda.sz3one"
+    dimension: "256 384 384"
+    eb: 0.0001
+    sz3_config: "/anvil/scratch/x-yliu4/Dec3-comp-transfer/sz3.config"
+    partition: wholenode
+    account: cis220161
+    nodes: 1
+    ntasks_per_node: 128
+    name: mpi-cp
+    time: "00:05:00"
