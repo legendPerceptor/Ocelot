@@ -180,10 +180,14 @@ class OcelotApp:
             return
 
         if 'local' in self.config:
-            local_config = self.config['local']
-            self.PSNR_model = pickle.load(open(local_config['PSNR_model'], 'rb'))
-            self.CPTime_model = pickle.load(open(local_config['CPTime_model'], 'rb'))
-            self.CR_model = pickle.load(open(local_config['CR_model'], 'rb'))
+            try:
+                local_config = self.config['local']
+                self.PSNR_model = pickle.load(open(local_config['PSNR_model'], 'rb'))
+                self.CPTime_model = pickle.load(open(local_config['CPTime_model'], 'rb'))
+                self.CR_model = pickle.load(open(local_config['CR_model'], 'rb'))
+            except FileNotFoundError:
+                print("The ML models cannot be found, CR/time prediction is disabled")
+                self.predict_button["state"] = "disabled"
         
         self.status.set("Config file is loaded")
         self.status_label.configure(foreground='green')
@@ -524,8 +528,8 @@ class OcelotApp:
         final_line_compression_frame = Frame(tab_1)
         final_line_compression_frame.grid(row=global_frame_row_, column=0, sticky=W)
 
-        predict_button = Button(final_line_compression_frame, text="Predict Selected", font=global_font_, command=self.on_predict_selected_button)
-        predict_button.grid(row=0, column=0, sticky=W)
+        self.predict_button = Button(final_line_compression_frame, text="Predict Selected", font=global_font_, command=self.on_predict_selected_button)
+        self.predict_button.grid(row=0, column=0, sticky=W)
 
         compress_button = Button(final_line_compression_frame, text="Compress Selected", font=global_font_, command=self.on_compress_selected_button)
         compress_button.grid(row=0, column=1, sticky=W)
