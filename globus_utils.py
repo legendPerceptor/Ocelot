@@ -26,6 +26,10 @@ from typing import Sequence
 
 import globus_sdk
 
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5 import QtGui, QtCore
+
 # Registered Globus Client ID for Ocelot
 _APPLICATION_ID = '1ed32e7d-3eef-4fc1-a151-4671326f59d4'
 # https://docs.globus.org/globus-connect-server/migrating-to-v5.4/application-migration/#activation_is_replaced_by_consent  # noqa: E501
@@ -77,6 +81,28 @@ def authenticate(
     print(f'Please visit the following url to authenticate:\n{url}')
 
     auth_code = input('Enter the auth code: ').strip()
+    return client.oauth2_exchange_code_for_tokens(auth_code)
+
+def authenticate_gui(
+    w: QDialog,
+    client_id:str,
+    requested_scopes: Iterable[str] | None = None,
+) -> globus_sdk.OAuthTokenResponse:
+    """Perform Native App auth flow."""
+    client = globus_sdk.NativeAppAuthClient(client_id=client_id)
+    print("requested scopes: ", requested_scopes)
+    client.oauth2_start_flow(
+        refresh_tokens=True,
+        requested_scopes=requested_scopes,
+    )
+
+    url = client.oauth2_get_authorize_url()
+    print(f'Please visit the following url to authenticate:\n{url}')
+    auth_code, ok = QInputDialog.getText(w, "Globus Authenticate", f'Please visit the following url to authenticate:\n{url}')
+    if ok:
+        print("Got authenticate code, proceed to exchange code for tokens")
+    
+    # auth_code = input('Enter the auth code: ').strip()
     return client.oauth2_exchange_code_for_tokens(auth_code)
 
 
@@ -138,6 +164,7 @@ def get_one_time_authorizer(
 
 
 def proxystore_authenticate(
+    w: QDialog,
     client_id: str,
     proxystore_dir: str,
     token_file_name: str,
@@ -150,7 +177,8 @@ def proxystore_authenticate(
 
     scopes = _get_proxystore_scopes(collections, additional_scopes)
 
-    tokens = authenticate(
+    tokens = authenticate_gui(
+        w=w,
         client_id=client_id,
         requested_scopes=scopes,
     )

@@ -17,6 +17,7 @@ setup(
         "psutil>=5.9.8",
         "pandas>=2.2.1",
         "PyYAML>=6.0.1",
-        "PyQt5>=5.15.10"
+        "PyQt5>=5.15.10",
+        "globus_sdk>=3.37.0",
     ]
 )

@@ -364,7 +364,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>FuncX ID:</string>
+          <string>Globus Compute ID:</string>
          </property>
         </widget>
        </item>
@@ -374,12 +374,12 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Globus ID:</string>
+          <string>Globus Transfer ID:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="globus_lineedit_a"/>
+        <widget class="QLineEdit" name="globus_id_lineedit_a"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
@@ -395,13 +395,6 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="authenticate_button_a">
-         <property name="text">
-          <string>Authenticate</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QPushButton" name="list_workdir_button_a">
          <property name="text">
@@ -490,7 +483,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>FuncX ID:</string>
+          <string>Globus Compute ID:</string>
          </property>
         </widget>
        </item>
@@ -500,12 +493,12 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Globus ID:</string>
+          <string>Globus Transfer ID:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="globus_lineedit_b"/>
+        <widget class="QLineEdit" name="globus_id_lineedit_b"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_6">
@@ -521,13 +514,6 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QPushButton" name="authenticate_button_b">
-         <property name="text">
-          <string>Authenticate</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QPushButton" name="list_workdir_button_b">
          <property name="text">
@@ -593,12 +579,30 @@
    <property name="geometry">
     <rect>
      <x>460</x>
-     <y>420</y>
+     <y>410</y>
      <width>481</width>
      <height>301</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QPushButton" name="authenticate_button">
+        <property name="text">
+         <string>Authenticate Globus Transfer For Two Machines</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="authenticate_status_label">
+        <property name="text">
+         <string>Not Authenticated</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="label_13">
       <property name="text">
