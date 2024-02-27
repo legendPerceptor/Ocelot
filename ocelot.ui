@@ -394,6 +394,24 @@
       </layout>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QPushButton" name="register_globus_compute_button_a">
+         <property name="text">
+          <string>Register Globus Compute</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="remove_files_button_a">
+         <property name="text">
+          <string>Remove Selected</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="list_workdir_button_a">
@@ -509,6 +527,24 @@
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="workdir_lineedit_b"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <item>
+        <widget class="QPushButton" name="register_globus_compute_button_b">
+         <property name="text">
+          <string>Register Globus Compute</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="remove_files_button_b">
+         <property name="text">
+          <string>Remove Selected</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
