@@ -186,6 +186,8 @@ class UI(QDialog):
 
 
 if __name__ == '__main__':
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
     UIWindow = UI()
     sys.exit(app.exec_())
