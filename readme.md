@@ -6,8 +6,10 @@ Ocelot is a lossy compression and transfer framework for floating-point scientif
 
 - Support compression of extremely large single file.
 - Continuous collection of compression and transfer data while using the app to make better predictions in the future.
-- Install the compression pacakages automatically on desired machines.
+- Install the compression packages automatically on desired machines.
 - PyQt5 user interface
+- Easier Benchmarking of multiple datasets and multiple compressors
+- Upgrade to the Globus Compute SDK
 
 ## Ocelot 1.0 Features
 
