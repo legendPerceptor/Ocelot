@@ -163,8 +163,6 @@ class UI(QDialog):
         self.successHTMLTag = "<font color='Green'><br>"
         self.warningHTMLTag = "<font color='Yellow'><br>"
 
-        # threads
-        self.threads = []
 
         self.show()
     
@@ -190,13 +188,13 @@ class UI(QDialog):
         QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
 
     def on_click_register_globus_compute_a(self):
-        self.gce_machine_a = Executor(endpoint_id=self.funcx_id_lineedit_a.text().strip(), client=self.gcc)
+        self.gce_machine_a = Executor(endpoint_id=self.funcx_id_lineedit_a.text().strip(), funcx_client=self.gcc)
         future = self.gce_machine_a.submit(list_cpu)
         print("submitted a lscpu to machine A")
         future.add_done_callback(lambda f: print("Machine A CPU Info:\n", f.result()))
 
     def on_click_register_globus_compute_b(self):
-        self.gce_machine_b = Executor(endpoint_id=self.funcx_id_lineedit_b.text().strip(), client=self.gcc)
+        self.gce_machine_b = Executor(endpoint_id=self.funcx_id_lineedit_b.text().strip(), funcx_client=self.gcc)
         future = self.gce_machine_b.submit(list_cpu)
         print("submitted a lscpu to machine B")
         future.add_done_callback(lambda f: print("Machine B CPU Info:\n", f.result()))
@@ -417,8 +415,7 @@ class UI(QDialog):
         QMessageBox.information(self, "Transfer", f"The transfer task has been submitted", QMessageBox.StandardButton.Close)
 
         thread_a = TransferThread(self.tc, transfer_doc_a_to_b)
-        thread_a.finished.connect(lambda: self.check_transfer_status(transfer_doc_a_to_b))
-        self.threads.append(thread_a)
+        thread_a.finished.connect(lambda: (self.check_transfer_status(transfer_doc_a_to_b), thread_a))
         thread_a.start()
 
 
