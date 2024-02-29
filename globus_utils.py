@@ -98,7 +98,7 @@ def authenticate_gui(
 
     url = client.oauth2_get_authorize_url()
     print(f'Please visit the following url to authenticate:\n{url}')
-    auth_code, ok = QInputDialog.getText(w, "Globus Authenticate", f'Please visit the following url to authenticate:\n{url}')
+    auth_code, ok = QInputDialog.getText(w, "Globus Authenticate", f'Please paste the authenticate code in')
     if ok:
         print("Got authenticate code, proceed to exchange code for tokens")
     

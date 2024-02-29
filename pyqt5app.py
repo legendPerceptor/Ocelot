@@ -17,6 +17,26 @@ from globus_compute_sdk.serialize import CombinedCode
 from globus_compute_util import list_dir, list_cpu, remove_files
 
 from pathlib import Path
+from typing import List
+
+from enum import Enum
+class MessageLevel(Enum):
+    WARNING = 1
+    INFO = 2
+    SUCCESS = 3
+    ALERT = 4
+
+class TransferThread(QThread):
+    def __init__(self, transfer_client, transfer_document):
+        super().__init__()
+        self.tc = transfer_client
+        self.transfer_document = transfer_document
+        self.task_id = self.transfer_document["task_id"]
+
+    def run(self):
+        while not self.tc.task_wait(self.task_id, timeout=10):
+            print(f"another 10 seconds have passed waiting for transfer task {self.task_id} to complete!")
+        self.finished.emit()
 
 class UI(QDialog):
     def __init__(self):
@@ -91,6 +111,10 @@ class UI(QDialog):
         self.remove_files_button_a.clicked.connect(self.on_click_remove_files_button_a)
         self.remove_files_button_b.clicked.connect(self.on_click_remove_files_button_b)
 
+        # Status and Performance
+        self.current_status_textEdit = self.findChild(QTextEdit, "current_status_textEdit")
+        self.transfer_performance_textEdit = self.findChild(QTextEdit, "transfer_performance_textEdit")
+
         # YAML config information
         self.machine_a_config = None
         self.machine_b_config = None
@@ -104,6 +128,25 @@ class UI(QDialog):
         # ListWidget selection
         self.listwidget_a_selected_paths = None
         self.listwidget_b_selected_paths = None
+
+        # Globus Transfer
+        self.tc = None
+
+        # Colors
+        self.color_effect_darkgreen = QGraphicsColorizeEffect()
+        self.color_effect_darkgreen.setColor(Qt.GlobalColor.darkGreen)
+        self.color_effect_red = QGraphicsColorizeEffect()
+        self.color_effect_red.setColor(Qt.GlobalColor.red)
+
+        # HTML
+        self.endHTMLTag = "</font><br>"
+        self.alertHTMLTag = "<font color='Red'><br>"
+        self.infoHTMLTag = "<font color='Black'><br>"
+        self.successHTMLTag = "<font color='Green'><br>"
+        self.warningHTMLTag = "<font color='Yellow'><br>"
+
+        # threads
+        self.threads = []
 
         self.show()
 
@@ -147,9 +190,7 @@ class UI(QDialog):
                 'delete your tokens and try again'
             )
         self.authenticate_status_label.setText("Authenticated!")
-        color_effect = QGraphicsColorizeEffect()
-        color_effect.setColor(Qt.GlobalColor.darkGreen) 
-        self.authenticate_status_label.setGraphicsEffect(color_effect)
+        self.authenticate_status_label.setGraphicsEffect(self.color_effect_darkgreen)
 
         QMessageBox.information(self, "Authenticate", "You have finished Globus Transfer Autentication", QMessageBox.StandardButton.Close)
 
@@ -207,11 +248,13 @@ class UI(QDialog):
         self.workdir_listwidget_a.clear()
         for file in future.result():
             self.workdir_listwidget_a.addItem(file)
+        print("List Workdir has completed in machine A")
 
     def put_workdir_into_listWidget_b(self, future):
         self.workdir_listwidget_b.clear()
         for file in future.result():
             self.workdir_listwidget_b.addItem(file)
+        print("List Workdir has completed in machine B")
 
     def on_click_list_workdir_button_a(self):
         if self.gce_machine_a is None:
@@ -232,10 +275,32 @@ class UI(QDialog):
         # QMessageBox.information(self, "List Workdir", "You clicked the List Workdir B button!", QMessageBox.StandardButton.Close)
 
     def on_click_save_config_button_a(self):
-        QMessageBox.information(self, "Save Config", "You clicked the Save Config A button!", QMessageBox.StandardButton.Close)
+        machine_config_file, ok = QFileDialog.getSaveFileName(self, "Save As", os.getcwd(), "YAML files (*.yaml *.yml)")
+        if not ok:
+            return
+        
+        with open(machine_config_file, 'w') as f:
+            try:
+                yaml.dump(self.machine_a_config, f, default_flow_style=False)
+            except yaml.YAMLError as exec:
+                print("cannot save the YAML file")
+                return
+
+        QMessageBox.information(self, "Save Config", "You have successfully saved the config file for machine A", QMessageBox.StandardButton.Ok)
 
     def on_click_save_config_button_b(self):
-        QMessageBox.information(self, "Save Config", "You clicked the Save Config B button!", QMessageBox.StandardButton.Close)
+        machine_config_file, ok = QFileDialog.getSaveFileName(self, "Save As", os.getcwd(), "YAML files (*.yaml *.yml)")
+        if not ok:
+            return
+        
+        with open(machine_config_file, 'w') as f:
+            try:
+                yaml.dump(self.machine_b_config, f, default_flow_style=False)
+            except yaml.YAMLError as exec:
+                print("cannot save the YAML file")
+                return
+
+        QMessageBox.information(self, "Save Config", "You have successfully saved the config file for machine B", QMessageBox.StandardButton.Ok)
 
     def on_click_load_config_button_a(self):
         machine_config_file, ok = QFileDialog.getOpenFileName(self, "Open", os.getcwd(), "YAML files (*.yaml *.yml)")
@@ -291,7 +356,80 @@ class UI(QDialog):
         QMessageBox.information(self, "Decompress", "You clicked the Decompress B button!", QMessageBox.StandardButton.Close)
 
     def on_click_transfer_button_a(self):
-        QMessageBox.information(self, "Transfer", "You clicked the Transfer A button!", QMessageBox.StandardButton.Close)
+        if self.tc is None:
+            print("Globus Transfer has not been authenticated!")
+            QMessageBox.warning(self, "Authentication Error", "You need to authenticate Globus Transfer first!", QMessageBox.StandardButton.Cancel)
+            return
+
+        files_to_transfer :List[Path]= self.listwidget_a_selected_paths
+
+        task_data = globus_sdk.TransferData(
+            source_endpoint=self.globus_id_lineedit_a.text(), destination_endpoint=self.globus_id_lineedit_b.text()
+        )
+        
+        for file in files_to_transfer:
+            task_data.add_item(
+                str(file),  # source
+                str(Path(self.workdir_lineedit_b.text()) / file.name),  # dest
+            )
+            print("transfering ", str(file), " to ", str(Path(self.workdir_lineedit_b.text()) / file.name))
+        # submit the task
+        transfer_doc_a_to_b = self.tc.submit_transfer(task_data)
+        QMessageBox.information(self, "Transfer", f"The transfer task has been submitted", QMessageBox.StandardButton.Close)
+
+        thread_a = TransferThread(self.tc, transfer_doc_a_to_b)
+        thread_a.finished.connect(lambda: self.check_transfer_status(transfer_doc_a_to_b))
+        self.threads.append(thread_a)
+        thread_a.start()
+
+
+    def get_html_message(self, message, level:MessageLevel):
+        if level == MessageLevel.ALERT:
+            html_message = f"{self.alertHTMLTag} {message} {self.endHTMLTag}"
+        elif level == MessageLevel.WARNING:
+            html_message = f"{self.warningHTMLTag} {message} {self.endHTMLTag}"
+        elif level == MessageLevel.SUCCESS:
+            html_message = f"{self.successHTMLTag} {message} {self.endHTMLTag}"
+        else:
+            html_message = f"{self.infoHTMLTag} {message} {self.endHTMLTag}"
+        return html_message
+    
+    def add_message_to_current_status(self, message, level: MessageLevel = MessageLevel.INFO):
+        cursor = self.current_status_textEdit.textCursor()
+        html_message = self.get_html_message(message, level)
+        self.current_status_textEdit.insertHtml(html_message)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.current_status_textEdit.setTextCursor(cursor)
+
+    def add_message_to_transfer_performance(self, message, level: MessageLevel = MessageLevel.INFO):
+        cursor = self.transfer_performance_textEdit.textCursor()
+        html_message = self.get_html_message(message, level)
+        self.transfer_performance_textEdit.insertHtml(html_message)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.transfer_performance_textEdit.setTextCursor(cursor)
+
+    def check_transfer_status(self, transfer_doc):
+        if transfer_doc is None:
+            self.add_message_to_current_status("Error: No transfer task to check!")
+            return
+        
+        task_id = transfer_doc["task_id"]
+        task = self.tc.get_task(task_id)
+        print(task)
+        status = task['status']
+        files = task['files']
+        bytes_transferred = task['bytes_transferred']
+        request_time = task['request_time']
+        completion_time = task['completion_time']
+        self.add_message_to_transfer_performance(f"Task {task_id}'s Status: {status}")
+        self.add_message_to_transfer_performance("Bytes transferred: " + str(bytes_transferred))
+        self.add_message_to_transfer_performance("Request time: " + str(request_time))
+        self.add_message_to_transfer_performance("Completion time: " + str(completion_time))
+        self.add_message_to_transfer_performance("Files:" + str(files))
+        if status == 'ACTIVE':
+            self.add_message_to_transfer_performance("Transfer task is running", MessageLevel.INFO)
+        elif status == 'SUCCEEDED':
+            self.add_message_to_transfer_performance("Transfer task is done", MessageLevel.SUCCESS)
 
     def on_click_transfer_button_b(self):
         QMessageBox.information(self, "Transfer", "You clicked the Transfer B button!", QMessageBox.StandardButton.Close)
