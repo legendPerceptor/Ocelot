@@ -19,7 +19,7 @@
      <x>440</x>
      <y>20</y>
      <width>491</width>
-     <height>191</height>
+     <height>181</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -549,7 +549,7 @@
    <property name="title">
     <string>Dataset Config</string>
    </property>
-   <widget class="QPushButton" name="pushButton_12">
+   <widget class="QPushButton" name="transfer_selected_button">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -562,7 +562,7 @@
      <string>Transfer Selected</string>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox_4">
+   <widget class="QGroupBox" name="dataset_machine_group_box">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -585,14 +585,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QRadioButton" name="radioButton_4">
+       <widget class="QRadioButton" name="machine_a_radio_button">
         <property name="text">
          <string>Machine A</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_5">
+       <widget class="QRadioButton" name="machine_b_radio_button">
         <property name="text">
          <string>Machine B</string>
         </property>
@@ -614,7 +614,7 @@
      <string>Dataset Directory:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_9">
+   <widget class="QLineEdit" name="dataset_directory_lineEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -624,7 +624,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="listWidget_3">
+   <widget class="QListWidget" name="dataset_dir_listWidegt">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -634,7 +634,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_9">
+   <widget class="QPushButton" name="list_dataset_button">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -647,7 +647,7 @@
      <string>List Dataset</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_11">
+   <widget class="QPushButton" name="decompress_selected_button">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -660,7 +660,7 @@
      <string>Decompress Selected</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_10">
+   <widget class="QPushButton" name="compress_selected_button">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -673,7 +673,7 @@
      <string>Compress Selected</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_18">
+   <widget class="QPushButton" name="preview_data_button">
     <property name="geometry">
      <rect>
       <x>160</x>

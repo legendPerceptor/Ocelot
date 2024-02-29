@@ -111,6 +111,24 @@ class UI(QDialog):
         self.remove_files_button_a.clicked.connect(self.on_click_remove_files_button_a)
         self.remove_files_button_b.clicked.connect(self.on_click_remove_files_button_b)
 
+
+        # Dataset Config
+        self.dataset_directory_lineEdit = self.findChild(QLineEdit, "dataset_directory_lineEdit")
+        self.list_dataset_button = self.findChild(QPushButton, "list_dataset_button")
+        self.preview_data_button = self.findChild(QPushButton, "preview_data_button")
+        self.dataset_dir_listWidegt = self.findChild(QTextEdit, "dataset_dir_listWidegt")
+        self.machine_a_radio_button = self.findChild(QRadioButton, "machine_a_radio_button")
+        self.machine_b_radio_button = self.findChild(QRadioButton, "machine_b_radio_button")
+        self.compress_selected_button = self.findChild(QPushButton, "compress_selected_button")
+        self.decompress_selected_button = self.findChild(QPushButton, "decompress_selected_button")
+        self.transfer_selected_button = self.findChild(QPushButton, "transfer_selected_button")
+
+        self.list_dataset_button.clicked.connect(self.on_click_list_dataset_button)
+        self.preview_data_button.clicked.connect(self.on_click_preview_selected_button)
+        self.compress_selected_button.clicked.connect(self.on_click_compress_selected_button)
+        self.decompress_selected_button.clicked.connect(self.on_click_decompress_selected_button)
+        self.transfer_selected_button.clicked.connect(self.on_click_transfer_selected_button)
+
         # Status and Performance
         self.current_status_textEdit = self.findChild(QTextEdit, "current_status_textEdit")
         self.transfer_performance_textEdit = self.findChild(QTextEdit, "transfer_performance_textEdit")
@@ -149,6 +167,27 @@ class UI(QDialog):
         self.threads = []
 
         self.show()
+    
+    def on_click_list_dataset_button(self):
+        QMessageBox.information(self, "List Dataset", "You clicked the list dataset button", QMessageBox.StandardButton.Close)
+    
+    def on_click_preview_selected_button(self):
+        QMessageBox.information(self, "Preview", "You clicked the preview selected button", QMessageBox.StandardButton.Close)
+
+    def on_click_compress_selected_button(self):
+        if self.machine_a_radio_button.isChecked():
+            print("machine a is checked")
+        elif self.machine_b_radio_button.isChecked():
+            print("machine b is checked")
+        else:
+            print("neither machine a or b is checked")
+        QMessageBox.information(self, "Compress Selected", "You clicked the compress selected button", QMessageBox.StandardButton.Close)
+    
+    def on_click_decompress_selected_button(self):
+        QMessageBox.information(self, "Decompress Selected", "You clicked the decompress selected button", QMessageBox.StandardButton.Close)
+    
+    def on_click_transfer_selected_button(self):
+        QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
 
     def on_click_register_globus_compute_a(self):
         self.gce_machine_a = Executor(endpoint_id=self.funcx_id_lineedit_a.text().strip(), client=self.gcc)
