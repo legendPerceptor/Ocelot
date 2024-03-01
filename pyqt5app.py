@@ -116,7 +116,7 @@ class UI(QDialog):
         self.dataset_directory_lineEdit = self.findChild(QLineEdit, "dataset_directory_lineEdit")
         self.list_dataset_button = self.findChild(QPushButton, "list_dataset_button")
         self.preview_data_button = self.findChild(QPushButton, "preview_data_button")
-        self.dataset_dir_listWidegt = self.findChild(QTextEdit, "dataset_dir_listWidegt")
+        self.dataset_dir_listWidegt = self.findChild(QListWidget, "dataset_dir_listWidegt")
         self.machine_a_radio_button = self.findChild(QRadioButton, "machine_a_radio_button")
         self.machine_b_radio_button = self.findChild(QRadioButton, "machine_b_radio_button")
         self.compress_selected_button = self.findChild(QPushButton, "compress_selected_button")
@@ -165,9 +165,32 @@ class UI(QDialog):
 
 
         self.show()
+
+    def put_datasetdir_into_listWidget(self, future, machine):
+        self.dataset_dir_listWidegt.clear()
+        for file in future.result():
+            self.dataset_dir_listWidegt.addItem(file)
+        print(f"List Dataset has completed in machine {machine}")
     
     def on_click_list_dataset_button(self):
-        QMessageBox.information(self, "List Dataset", "You clicked the list dataset button", QMessageBox.StandardButton.Close)
+        if self.machine_a_radio_button.isChecked() and self.gce_machine_a is None:
+            QMessageBox.information(self, "List Dataset", "You need to register Globus Compute For Machine A First!", QMessageBox.StandardButton.Close)
+            return
+        if self.machine_b_radio_button.isChecked() and self.gce_machine_b is None:
+            QMessageBox.information(self, "List Dataset", "You need to register Globus Compute For Machine B First!", QMessageBox.StandardButton.Close)
+            return
+        if not self.machine_a_radio_button.isChecked() and not self.machine_b_radio_button.isChecked():
+            QMessageBox.information(self, "List Dataset", "You need to select which machine the dataset is on!", QMessageBox.StandardButton.Close)
+            return
+        
+        if self.machine_a_radio_button.isChecked():
+            future = self.gce_machine_a.submit(list_dir, self.dataset_directory_lineEdit.text().strip())
+            machine = "A"
+        else:
+            future = self.gce_machine_b.submit(list_dir, self.dataset_directory_lineEdit.text().strip())
+            machine = "B"
+        future.add_done_callback(lambda f: self.put_datasetdir_into_listWidget(f, machine))
+        print(f"submitted request to list dataset for machine {machine}")
     
     def on_click_preview_selected_button(self):
         QMessageBox.information(self, "Preview", "You clicked the preview selected button", QMessageBox.StandardButton.Close)

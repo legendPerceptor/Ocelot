@@ -5,8 +5,15 @@ global:
 datasets:
   - name: "Nyx 512"
     dimension: [512, 512, 512]
+    ext: ".f32"
     fileNames: ["velocity_x.f32", "velocity_y.f32", "velocity_z.f32", "temperature.f32"]
     folder: "/anvil/projects/x-cis220161/datasets/NYX_512x512x512/SDRBENCH-EXASKY-NYX-512x512x512_log"
+    ebs: [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+  - name: "CESM 1800x3600"
+    ext: ".dat"
+    dimension: [1800, 3600]
+    filenames: ["CLDHGH_1_1800_3600.dat", "ODV_bcar1_1_1800_3600.dat", "SNOWHICE_1_1800_3600.dat"]
+    folder: "/anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600"
     ebs: [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
 
 compressors:
