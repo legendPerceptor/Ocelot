@@ -17,3 +17,7 @@ def remove_files(files):
     except Exception as e:
         return False
     return True
+
+def run_command(command):
+    import subprocess
+    return subprocess.check_output(command, shell=True).decode().strip()

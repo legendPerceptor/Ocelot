@@ -13,19 +13,19 @@
   <property name="windowTitle">
    <string>Ocelot 2.0</string>
   </property>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="compressorTabWdiget">
    <property name="geometry">
     <rect>
      <x>440</x>
      <y>20</y>
      <width>491</width>
-     <height>181</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="currentIndex">
     <number>0</number>
    </property>
-   <widget class="QWidget" name="tab">
+   <widget class="QWidget" name="SZ3_tab">
     <attribute name="title">
      <string>SZ3</string>
     </attribute>
@@ -42,7 +42,7 @@
       <string>Data Dimension:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_7">
+    <widget class="QLineEdit" name="data_dimension_lineEdit">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -65,7 +65,7 @@
       <string>Error Bound:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_8">
+    <widget class="QLineEdit" name="error_bound_lineEdit">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -75,7 +75,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_3">
+    <widget class="QGroupBox" name="error_bound_mode_groupbox">
      <property name="geometry">
       <rect>
        <x>270</x>
@@ -87,7 +87,7 @@
      <property name="title">
       <string>Error Bound Mode</string>
      </property>
-     <widget class="QRadioButton" name="radioButton">
+     <widget class="QRadioButton" name="abs_mode_radio_button">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -100,7 +100,7 @@
        <string>ABS</string>
       </property>
      </widget>
-     <widget class="QRadioButton" name="radioButton_2">
+     <widget class="QRadioButton" name="rel_radio_button">
       <property name="geometry">
        <rect>
         <x>60</x>
@@ -113,7 +113,7 @@
        <string>REL</string>
       </property>
      </widget>
-     <widget class="QRadioButton" name="radioButton_3">
+     <widget class="QRadioButton" name="abs_and_rel_radio_button">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -140,7 +140,7 @@
       <string>Executable:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_10">
+    <widget class="QLineEdit" name="executable_lineEdit">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -150,7 +150,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_21">
+    <widget class="QPushButton" name="test_executable_button">
      <property name="geometry">
       <rect>
        <x>330</x>
@@ -164,52 +164,40 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab_3">
+   <widget class="QWidget" name="SZ_REGION_tab">
     <attribute name="title">
      <string>SZ_REGION</string>
     </attribute>
-    <widget class="QWidget" name="verticalLayoutWidget">
+    <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>140</y>
-       <width>273</width>
-       <height>19</height>
+       <x>80</x>
+       <y>70</y>
+       <width>271</width>
+       <height>17</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>The Functionality is yet to be developed</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="text">
+      <string>The Functionality is yet to be developed</string>
+     </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab_2">
+   <widget class="QWidget" name="ZFP_tab">
     <attribute name="title">
      <string>ZFP</string>
     </attribute>
-    <widget class="QWidget" name="verticalLayoutWidget_2">
+    <widget class="QLabel" name="label_11">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>140</y>
-       <width>273</width>
-       <height>19</height>
+       <x>80</x>
+       <y>70</y>
+       <width>271</width>
+       <height>17</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>The Functionality is yet to be developed</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="text">
+      <string>The Functionality is yet to be developed</string>
+     </property>
     </widget>
    </widget>
   </widget>
@@ -624,7 +612,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="dataset_dir_listWidegt">
+   <widget class="QListWidget" name="dataset_dir_listWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
