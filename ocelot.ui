@@ -305,6 +305,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="preview_data_button_ma">
+         <property name="text">
+          <string>Preview</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="save_config_button_a">
          <property name="text">
           <string>Save Config</string>
@@ -375,7 +382,7 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>421</width>
+      <width>431</width>
       <height>321</height>
      </rect>
     </property>
@@ -438,6 +445,13 @@
         <widget class="QPushButton" name="list_workdir_button_b">
          <property name="text">
           <string>List Work Dir</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="preview_data_button_mb">
+         <property name="text">
+          <string>Preivew</string>
          </property>
         </widget>
        </item>

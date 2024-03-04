@@ -51,7 +51,7 @@ class CompressorCmdFactory():
     def make_sz3_decompress_cmd(executable, filename, decompressedFilename, dimension: List, mode, errorbound) -> str:
         command = [executable, "-f", "-z", filename,
                    "-o", decompressedFilename, "-M", mode,
-                   errorbound, f"-{len(dimension)}" + dimension]
+                   errorbound, f"-{len(dimension)}"] + dimension
         command_str = " ".join(command)
         return command_str
         
@@ -268,6 +268,105 @@ class UI(QDialog):
     def on_click_preview_selected_button(self):
         QMessageBox.information(self, "Preview", "You clicked the preview selected button", QMessageBox.StandardButton.Close)
 
+    def on_click_compress_button_a(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
+        if self.sz3_eb_mode_abs_and_rel_radiobutton.isChecked():
+            mode = "ABS_AND_REL"
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
+            QMessageBox.information(self, "Compress", "Please select only one file for compression", QMessageBox.StandardButton.Close)
+            return
+        if self.gce_machine_a is None:
+            QMessageBox.information(self, "Compress", "You need to register Globus Compute for machine A first", QMessageBox.StandardButton.Close)
+            return
+        filename = self.workdir_listwidget_a.selectedItems()[0].text()
+        filepath = str(Path(self.workdir_lineedit_a.text()) / filename)
+        executable = self.sz3_executable_lineEdit_MA.text()
+        compressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".sz"))
+        command = CompressorCmdFactory.make_sz3_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound)
+        future = self.gce_machine_a.submit(run_command, command)
+        print("Machine A compression task has been submitted")
+        future.add_done_callback(lambda f: (print("machine A compression result:", f.result()), self.on_click_list_workdir_button_a()))
+        QMessageBox.information(self, "Compress", "The compression task on Machine A has been submitted!", QMessageBox.StandardButton.Close)
+
+    def on_click_compress_button_b(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
+        if self.sz3_eb_mode_abs_and_rel_radiobutton.isChecked():
+            mode = "ABS_AND_REL"
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
+            QMessageBox.information(self, "Compress", "Please select only one file for compression", QMessageBox.StandardButton.Close)
+            return
+        if self.gce_machine_b is None:
+            QMessageBox.information(self, "Compress", "You need to register Globus Compute for machine B first", QMessageBox.StandardButton.Close)
+            return
+        filename = self.workdir_listwidget_b.selectedItems()[0].text()
+        filepath = str(Path(self.workdir_lineedit_b.text()) / filename)
+        executable = self.sz3_executable_lineEdit_MB.text()
+        compressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".sz"))
+        command = CompressorCmdFactory.make_sz3_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound)
+        future = self.gce_machine_b.submit(run_command, command)
+        print("Machine B compression task has been submitted")
+        future.add_done_callback(lambda f: (print("machine B compression result:", f.result()), self.on_click_list_workdir_button_b()))
+        QMessageBox.information(self, "Compress", "The compression task on Machine B has been submitted!", QMessageBox.StandardButton.Close)
+
+    def on_click_decompress_button_a(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
+        if self.sz3_eb_mode_abs_and_rel_radiobutton.isChecked():
+            mode = "ABS_AND_REL"
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress", "Please select only one file for compression", QMessageBox.StandardButton.Close)
+            return
+        if self.gce_machine_a is None:
+            QMessageBox.information(self, "Decompress", "You need to register Globus Compute for machine A first", QMessageBox.StandardButton.Close)
+            return
+        filename = self.workdir_listwidget_a.selectedItems()[0].text()
+        filepath = str(Path(self.workdir_lineedit_a.text()) / filename)
+        executable = self.sz3_executable_lineEdit_MA.text()
+        decompressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".dp"))
+        command = CompressorCmdFactory.make_sz3_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound)
+        future = self.gce_machine_a.submit(run_command, command)
+        print("Machine A decompression task has been submitted")
+        future.add_done_callback(lambda f: (print("machine A decompression result:", f.result()), self.on_click_list_workdir_button_a()))
+
+        QMessageBox.information(self, "Decompress", "The decompression task on machine A has been submitted!", QMessageBox.StandardButton.Close)
+
+    def on_click_decompress_button_b(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
+        if self.sz3_eb_mode_abs_and_rel_radiobutton.isChecked():
+            mode = "ABS_AND_REL"
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress", "Please select only one file for compression", QMessageBox.StandardButton.Close)
+            return
+        if self.gce_machine_b is None:
+            QMessageBox.information(self, "Decompress", "You need to register Globus Compute for machine A first", QMessageBox.StandardButton.Close)
+            return
+        filename = self.workdir_listwidget_b.selectedItems()[0].text()
+        filepath = str(Path(self.workdir_lineedit_b.text()) / filename)
+        executable = self.sz3_executable_lineEdit_MB.text()
+        decompressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".dp"))
+        command = CompressorCmdFactory.make_sz3_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound)
+        future = self.gce_machine_b.submit(run_command, command)
+        print("Machine B decompression task has been submitted")
+        future.add_done_callback(lambda f: (print("machine B decompression result:", f.result()), self.on_click_list_workdir_button_b()))
+        QMessageBox.information(self, "Decompress", "The decompression task on machine B has been submitted!", QMessageBox.StandardButton.Close)
+
+    def _compress_selected_callback(self, future, machine):
+        print("compression result:", future.result())
+        if machine == "A":
+            self.on_click_list_workdir_button_a()
+            print("submitted a request to list workdir a")
+        else:
+            self.on_click_list_workdir_button_b()
+            print("submitted a request to list workdir b")
+
+
     def on_click_compress_selected_button(self):
         
         dimension = self.sz3_data_dimension_lineEdit.text().split()
@@ -290,13 +389,37 @@ class UI(QDialog):
         print("the sz3 compress command:", command)
         if self.machine_a_radio_button.isChecked():
             future = self.gce_machine_a.submit(run_command, command)
+            machine = "A"
         else:
             future = self.gce_machine_b.submit(run_command, command)
+            machine = "B"
         print("compression task has been submitted!")
-        future.add_done_callback(lambda f: print("compression result:", f.result()))
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, machine))
         QMessageBox.information(self, "Compress Selected", "The compression task has been submitted!", QMessageBox.StandardButton.Close)
     
     def on_click_decompress_selected_button(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
+        if self.sz3_eb_mode_abs_and_rel_radiobutton.isChecked():
+            mode = "ABS_AND_REL"
+        filename = self.dataset_dir_listWidget.selectedItems()[0].text()
+        if self.machine_a_radio_button.isChecked():
+            decompressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".dp"))
+            executable = self.sz3_executable_lineEdit_MA.text()
+        elif self.machine_b_radio_button.isChecked():
+            decompressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".dp"))
+            executable = self.sz3_executable_lineEdit_MB.text()
+        else:
+            print("neither machine a or b is checked")
+        filepath = str(Path(self.dataset_directory_lineEdit.text()) / filename) 
+        command = CompressorCmdFactory.make_sz3_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound)
+        if self.machine_a_radio_button.isChecked():
+            future = self.gce_machine_a.submit(run_command, command)
+        else:
+            future = self.gce_machine_b.submit(run_command, command)
+        print("decompression task has been submitted!")
+        future.add_done_callback(lambda f: print("decompression result:", f.result()))
         QMessageBox.information(self, "Decompress Selected", "You clicked the decompress selected button", QMessageBox.StandardButton.Close)
     
     def on_click_transfer_selected_button(self):
@@ -456,10 +579,14 @@ class UI(QDialog):
     def on_toggle_machine_a(self, checked):
         if checked:
             self.dataset_directory_lineEdit.setText(self.dataset_dir_a_default)
+        else:
+            self.dataset_dir_a_default = self.dataset_directory_lineEdit.text()
     
     def on_toggle_machine_b(self, checked):
         if checked:
             self.dataset_directory_lineEdit.setText(self.dataset_dir_b_default)
+        else:
+            self.dataset_dir_b_default = self.dataset_directory_lineEdit.text()
 
     def on_click_load_config_button_a(self):
         machine_config_file, ok = QFileDialog.getOpenFileName(self, "Open", os.getcwd(), "YAML files (*.yaml *.yml)")
@@ -520,21 +647,6 @@ class UI(QDialog):
         if "globus_client_id" in self.machine_b_config:
             self.globus_client_id = self.machine_b_config["globus_client_id"]
 
-    def getCompressionCmd(self):
-        pass
-
-    def on_click_compress_button_a(self):
-        QMessageBox.information(self, "Compress", "You clicked the Compress A button!", QMessageBox.StandardButton.Close)
-
-    def on_click_compress_button_b(self):
-        QMessageBox.information(self, "Compress", "You clicked the Compress B button!", QMessageBox.StandardButton.Close)
-
-    def on_click_decompress_button_a(self):
-        QMessageBox.information(self, "Decompress", "You clicked the Decompress A button!", QMessageBox.StandardButton.Close)
-
-    def on_click_decompress_button_b(self):
-        QMessageBox.information(self, "Decompress", "You clicked the Decompress B button!", QMessageBox.StandardButton.Close)
-
     def on_click_transfer_button_a(self):
         if self.tc is None:
             print("Globus Transfer has not been authenticated!")
@@ -555,10 +667,11 @@ class UI(QDialog):
             print("transfering ", str(file), " to ", str(Path(self.workdir_lineedit_b.text()) / file.name))
         # submit the task
         transfer_doc_a_to_b = self.tc.submit_transfer(task_data)
+        self.transfer_performance_textEdit.clear()
         QMessageBox.information(self, "Transfer", f"The transfer task has been submitted", QMessageBox.StandardButton.Close)
 
         thread_a = TransferThread(self.tc, transfer_doc_a_to_b)
-        thread_a.finished.connect(lambda: (self.check_transfer_status(transfer_doc_a_to_b), thread_a))
+        thread_a.finished.connect(lambda: (self.check_transfer_status(transfer_doc_a_to_b), thread_a, self.on_click_list_workdir_button_b()))
         thread_a.start()
 
 
@@ -591,7 +704,7 @@ class UI(QDialog):
         if transfer_doc is None:
             self.add_message_to_current_status("Error: No transfer task to check!")
             return
-        
+
         task_id = transfer_doc["task_id"]
         task = self.tc.get_task(task_id)
         print(task)
@@ -611,7 +724,31 @@ class UI(QDialog):
             self.add_message_to_transfer_performance("Transfer task is done", MessageLevel.SUCCESS)
 
     def on_click_transfer_button_b(self):
-        QMessageBox.information(self, "Transfer", "You clicked the Transfer B button!", QMessageBox.StandardButton.Close)
+        if self.tc is None:
+            print("Globus Transfer has not been authenticated!")
+            QMessageBox.warning(self, "Authentication Error", "You need to authenticate Globus Transfer first!", QMessageBox.StandardButton.Cancel)
+            return
+
+        files_to_transfer :List[Path]= self.listwidget_b_selected_paths
+
+        task_data = globus_sdk.TransferData(
+            source_endpoint=self.globus_id_lineedit_b.text(), destination_endpoint=self.globus_id_lineedit_a.text()
+        )
+        
+        for file in files_to_transfer:
+            task_data.add_item(
+                str(file),  # source
+                str(Path(self.workdir_lineedit_a.text()) / file.name),  # dest
+            )
+            print("transfering ", str(file), " to ", str(Path(self.workdir_lineedit_b.text()) / file.name))
+        # submit the task
+        transfer_doc_b_to_a = self.tc.submit_transfer(task_data)
+        self.transfer_performance_textEdit.clear()
+        QMessageBox.information(self, "Transfer", f"The transfer task has been submitted", QMessageBox.StandardButton.Close)
+
+        thread_b = TransferThread(self.tc, transfer_doc_b_to_a)
+        thread_b.finished.connect(lambda: (self.check_transfer_status(transfer_doc_b_to_a), thread_b, self.on_click_list_workdir_button_a()))
+        thread_b.start()
 
     def on_click_autotransfer_button_a(self):
         QMessageBox.information(self, "Auto Transfer", "You clicked the Auto Transfer A button!", QMessageBox.StandardButton.Close)
