@@ -40,10 +40,18 @@ class TransferThread(QThread):
 
 class CompressorCmdFactory():
     @staticmethod
-    def make_sz3_cmd(excutable, filename, compressedFilename, dimension: List, mode, errorbound) -> str:
+    def make_sz3_compress_cmd(excutable, filename, compressedFilename, dimension: List, mode, errorbound) -> str:
         command = [excutable, "-f", "-i", filename,
                    "-z", compressedFilename, "-M", mode,
                    errorbound, f"-{len(dimension)}"] + dimension
+        command_str = " ".join(command)
+        return command_str
+    
+    @staticmethod
+    def make_sz3_decompress_cmd(executable, filename, decompressedFilename, dimension: List, mode, errorbound) -> str:
+        command = [executable, "-f", "-z", filename,
+                   "-o", decompressedFilename, "-M", mode,
+                   errorbound, f"-{len(dimension)}" + dimension]
         command_str = " ".join(command)
         return command_str
         
@@ -138,6 +146,8 @@ class UI(QDialog):
         self.compress_selected_button.clicked.connect(self.on_click_compress_selected_button)
         self.decompress_selected_button.clicked.connect(self.on_click_decompress_selected_button)
         self.transfer_selected_button.clicked.connect(self.on_click_transfer_selected_button)
+        self.machine_a_radio_button.toggled.connect(self.on_toggle_machine_a)
+        self.machine_b_radio_button.toggled.connect(self.on_toggle_machine_b)
 
         # Status and Performance
         self.current_status_textEdit = self.findChild(QTextEdit, "current_status_textEdit")
@@ -152,12 +162,15 @@ class UI(QDialog):
         # SZ3 config
         self.sz3_data_dimension_lineEdit = self.SZ3_tab.findChild(QLineEdit, "data_dimension_lineEdit")
         self.sz3_error_bound_lineEdit = self.SZ3_tab.findChild(QLineEdit, "error_bound_lineEdit")
-        self.sz3_executable_lineEdit = self.SZ3_tab.findChild(QLineEdit, "executable_lineEdit")
+        self.sz3_executable_lineEdit_MA = self.SZ3_tab.findChild(QLineEdit, "sz3_executable_lineEdit_MA")
+        self.sz3_executable_lineEdit_MB = self.SZ3_tab.findChild(QLineEdit, "sz3_executable_lineEdit_MB")
         self.sz3_eb_mode_abs_radiobutton = self.SZ3_tab.findChild(QRadioButton, "abs_mode_radio_button")
         self.sz3_eb_mode_rel_radiobutton = self.SZ3_tab.findChild(QRadioButton, "rel_radio_button")
         self.sz3_eb_mode_abs_and_rel_radiobutton = self.SZ3_tab.findChild(QRadioButton, "abs_and_rel_radio_button")
-        self.sz3_test_executable_button = self.SZ3_tab.findChild(QPushButton, "test_executable_button")
-        self.sz3_test_executable_button.clicked.connect(self.on_click_sz3_test_executable_button)
+        self.sz3_test_executable_button_ma = self.SZ3_tab.findChild(QPushButton, "test_executable_button_ma")
+        self.sz3_test_executable_button_ma.clicked.connect(self.on_click_sz3_test_executable_button_ma)
+        self.sz3_test_executable_button_mb = self.SZ3_tab.findChild(QPushButton, "test_exectuable_buttom_mb")
+        self.sz3_test_executable_button_ma.clicked.connect(self.on_click_sz3_test_executable_button_mb)
 
         # YAML config information
         self.machine_a_config = None
@@ -189,33 +202,37 @@ class UI(QDialog):
         self.successHTMLTag = "<font color='Green'><br>"
         self.warningHTMLTag = "<font color='Yellow'><br>"
 
+        # default dataset dir
+        self.dataset_dir_a_default = ""
+        self.dataset_dir_b_default = ""
 
         self.show()
 
-    def on_click_sz3_test_executable_button(self):
+    def on_click_sz3_test_executable_button_ma(self):
         data_dimension = self.sz3_data_dimension_lineEdit.text()
         error_bound = self.sz3_error_bound_lineEdit.text()
-        executable = self.sz3_executable_lineEdit.text()
+        executable = self.sz3_executable_lineEdit_MA.text()
         print("data dimension:", data_dimension)
         print("error bound:", error_bound)
         print("exectuable:", executable)
-        if not self.machine_a_radio_button.isChecked() and not self.machine_b_radio_button.isChecked():
-            QMessageBox.information(self, "Test Executable", "You need to select which machine the executable is on!", QMessageBox.StandardButton.Close)
+        if self.gce_machine_a is None:
+            QMessageBox.information(self, "Test Executable", "You need to register machine A for Globus Compute", QMessageBox.StandardButton.Close)
             return
-        if self.machine_a_radio_button.isChecked():
-            if self.gce_machine_a is None:
-                QMessageBox.information(self, "Test Executable", "You need to register machine A for Globus Compute", QMessageBox.StandardButton.Close)
-                return
-            future = self.gce_machine_a.submit(run_command, " ".join([executable, "--help"]))
-        elif self.machine_b_radio_button.isChecked():
-            if self.gce_machine_b is None:
-                QMessageBox.information(self, "Test Executable", "You need to register machine B for Globus Compute", QMessageBox.StandardButton.Close)
-                return
-            future = self.gce_machine_b.submit(run_command, " ".join([executable, "--help"]))
-        else:
-            QMessageBox.information(self, "Test Executable", "You need to select which machine the executable is on!", QMessageBox.StandardButton.Close)
+        future = self.gce_machine_a.submit(run_command, " ".join([executable, "--help"]))
+        future.add_done_callback(lambda f: print("Machine A Test Excutable result: ", f.result()))
+
+    def on_click_sz3_test_executable_button_mb(self):
+        data_dimension = self.sz3_data_dimension_lineEdit.text()
+        error_bound = self.sz3_error_bound_lineEdit.text()
+        executable = self.sz3_executable_lineEdit_MB.text()
+        print("data dimension:", data_dimension)
+        print("error bound:", error_bound)
+        print("exectuable:", executable)
+        if self.gce_machine_b is None:
+            QMessageBox.information(self, "Test Executable", "You need to register machine B for Globus Compute", QMessageBox.StandardButton.Close)
             return
-        future.add_done_callback(lambda f: print("Test Excutable result: ", f.result()))
+        future = self.gce_machine_b.submit(run_command, " ".join([executable, "--help"]))
+        future.add_done_callback(lambda f: print("Machine B Test Excutable result: ", f.result()))
 
     def put_datasetdir_into_listWidget(self, future, machine):
         self.dataset_dir_listWidget.clear()
@@ -252,7 +269,7 @@ class UI(QDialog):
         QMessageBox.information(self, "Preview", "You clicked the preview selected button", QMessageBox.StandardButton.Close)
 
     def on_click_compress_selected_button(self):
-        executable = self.sz3_executable_lineEdit.text()
+        
         dimension = self.sz3_data_dimension_lineEdit.text().split()
         errorbound = self.sz3_error_bound_lineEdit.text()
         mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
@@ -262,12 +279,14 @@ class UI(QDialog):
         
         if self.machine_a_radio_button.isChecked():
             compressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".sz"))
+            executable = self.sz3_executable_lineEdit_MA.text()
         elif self.machine_b_radio_button.isChecked():
             compressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".sz"))
+            executable = self.sz3_executable_lineEdit_MB.text()
         else:
             print("neither machine a or b is checked")
         filepath = str(Path(self.dataset_directory_lineEdit.text()) / filename) 
-        command = CompressorCmdFactory.make_sz3_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound)
+        command = CompressorCmdFactory.make_sz3_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound)
         print("the sz3 compress command:", command)
         if self.machine_a_radio_button.isChecked():
             future = self.gce_machine_a.submit(run_command, command)
@@ -434,6 +453,14 @@ class UI(QDialog):
 
         QMessageBox.information(self, "Save Config", "You have successfully saved the config file for machine B", QMessageBox.StandardButton.Ok)
 
+    def on_toggle_machine_a(self, checked):
+        if checked:
+            self.dataset_directory_lineEdit.setText(self.dataset_dir_a_default)
+    
+    def on_toggle_machine_b(self, checked):
+        if checked:
+            self.dataset_directory_lineEdit.setText(self.dataset_dir_b_default)
+
     def on_click_load_config_button_a(self):
         machine_config_file, ok = QFileDialog.getOpenFileName(self, "Open", os.getcwd(), "YAML files (*.yaml *.yml)")
         if not ok:
@@ -452,6 +479,15 @@ class UI(QDialog):
             self.workdir_lineedit_a.setText(self.machine_a_config["work_dir"])
         except KeyError:
             QMessageBox.warning(self, "Config Error", "Config file not correct!", QMessageBox.StandardButton.Cancel)
+        
+        if "defaults" in self.machine_a_config:
+            defaults = self.machine_a_config["defaults"]
+            if "sz3_exe" in defaults:
+                self.sz3_exe_a = defaults["sz3_exe"]
+                self.sz3_executable_lineEdit_MA.setText(self.sz3_exe_a)
+            if "dataset_dir" in defaults:
+                self.dataset_dir_a_default = defaults["dataset_dir"]
+
         if "globus_client_id" in self.machine_a_config:
             self.globus_client_id = self.machine_a_config["globus_client_id"]
 
@@ -472,6 +508,15 @@ class UI(QDialog):
             self.workdir_lineedit_b.setText(self.machine_b_config["work_dir"])
         except KeyError:
             QMessageBox.warning(self, "Config Error", "Config file not correct!", QMessageBox.StandardButton.Cancel)
+
+        if "defaults" in self.machine_b_config:
+            defaults = self.machine_b_config["defaults"]
+            if "sz3_exe" in defaults:
+                self.sz3_exe_b = defaults["sz3_exe"]
+                self.sz3_executable_lineEdit_MB.setText(self.sz3_exe_b)
+            if "dataset_dir" in defaults:
+                self.dataset_dir_b_default = defaults["dataset_dir"]
+
         if "globus_client_id" in self.machine_b_config:
             self.globus_client_id = self.machine_b_config["globus_client_id"]
 
