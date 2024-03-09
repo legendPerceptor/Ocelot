@@ -144,7 +144,7 @@ def sz3_compression(stats: CompressionStats, dataset: Dataset, data_file, compre
     process.wait()
     resource_thread.join()
     stdout, stderr = process.communicate()
-    logger.error(f"[compress]<{dataset.name}><{compressor.name}> {stderr.strip()}")
+    logger.debug(f"[compress]<{dataset.name}><{compressor.name}> {stderr.strip()}")
     end = time.perf_counter()
     elapsed_time = end - start
     cpu_times = stderr.strip().split('\n')[-3:]  # real_time, user_time, sys_time
@@ -155,7 +155,7 @@ def sz3_compression(stats: CompressionStats, dataset: Dataset, data_file, compre
         stats.compress_wall_time = elapsed_time
         stats.compress_cpu_time = real_time
         stats.error_bound = eb
-        stats.data_file_name = data_file
+        stats.data_file_name = Path(data_file).name
         stats.num_of_elements = np.prod(dimension)
         stats.compressed_size = os.path.getsize(compressed_file)
         stats.original_size = os.path.getsize(data_file)
@@ -191,7 +191,7 @@ def sz3_decompression(stats: CompressionStats, dataset: Dataset, compressor: Com
     process.wait()
     resource_thread.join()
     _, stderr = process.communicate()
-    logger.error(f"[decompress]<{dataset.name}><{compressor.name}> {stderr.strip()}")
+    logger.debug(f"[decompress]<{dataset.name}><{compressor.name}> {stderr.strip()}")
     end = time.perf_counter()
     elapsed_time = end - start
     print("stderr splited: ", stderr.strip().split('\n'))
@@ -226,10 +226,13 @@ def benchmark(config, do_compression: bool, do_decompression: bool):
             stats = CompressionStats()
             stats.compressor_name = compressor.name
             stats.dataset_name = dataset.name
-            dataset_files = [str(dataset.folder / filename) for filename in dataset.fileNames]
-            for data_file in dataset_files:
+            dataset_files = [dataset.folder / filename for filename in dataset.fileNames]
+            for data_file_path in dataset_files:
                 for eb in dataset.ebs:
-                    compressed_file = str(Path(config["global"]["large_file_output_folder"]) / (data_file + '-' + str(eb) + '-' + compressor.name  + compressor.ext))
+                    data_file = str(data_file_path)
+                    filename = data_file_path.name
+                    compressed_file = str(Path(config["global"]["large_file_output_folder"]) / (filename + '-' + str(eb) + '-' + compressor.name  + compressor.ext))
+                    verboseLogger.info(f"compressed file: {compressed_file}")
                     if do_compression:     
                         try:
                             sz3_compression(stats, dataset, data_file, compressor, compressed_file, eb, dataset.dimension)

@@ -1,5 +1,5 @@
 global:
-  metrics_output_folder: "/home/yuanjian/tests/"
+  metrics_output_folder: "/home/x-yliu4/tests/"
   large_file_output_folder: "/anvil/scratch/x-yliu4/tests"
 
 datasets:
@@ -9,12 +9,25 @@ datasets:
     fileNames: ["velocity_x.f32", "velocity_y.f32", "velocity_z.f32", "temperature.f32"]
     folder: "/anvil/projects/x-cis220161/datasets/NYX_512x512x512/SDRBENCH-EXASKY-NYX-512x512x512_log"
     ebs: [1e-1, 1e-3, 1e-5]
-  - name: "CESM 1800x3600"
+  - name: "CESM-1800x3600"
     dimension: [1800, 3600]
     ext: ".dat"
     fileNames: ["CLDHGH_1_1800_3600.dat", "ODV_bcar1_1_1800_3600.dat", "SNOWHICE_1_1800_3600.dat"]
     folder: "/anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600"
     ebs: [1e-1, 1e-3, 1e-5]
+  - name: "Miranda"
+    dimension: [384, 384, 256]
+    ext: ".dat"
+    fileNames: ["density.f32.dat", "diffusivity.f32.dat", "pressure.f32.dat", "velocityy.f32.dat", "velocityz.f32.dat"]
+    folder: "/anvil/projects/x-cis220161/datasets/Miranda"
+    ebs: [1e-1, 1e-3, 1e-5]
+  - name: "Hurricane-Isabel"
+    dimension: [500, 500, 100]
+    fileNames: ["CLOUDf48_log10.bin.dat", "QCLOUDf48_log10.bin.dat", "QICEf48_log10.bin.dat", "QSNOWf48_log10.bin.dat", "QRAINf48_log10.bin.dat"]
+    ext: ".dat"
+    folder: "/anvil/projects/x-cis220161/datasets/Hurricane-ISABEL/logdata"
+    ebs: [1e-1, 1e-3, 1e-5]
+
 
 compressors:
   - name: "sz3-official"
