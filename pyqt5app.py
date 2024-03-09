@@ -19,6 +19,8 @@ from globus_compute_util import list_dir, list_cpu, remove_files, run_command
 from pathlib import Path
 from typing import List
 
+from preview_data_dialog import ImageDialog
+
 from enum import Enum
 class MessageLevel(Enum):
     WARNING = 1
@@ -266,7 +268,20 @@ class UI(QDialog):
         print(f"submitted request to list dataset for machine {machine}")
     
     def on_click_preview_selected_button(self):
-        QMessageBox.information(self, "Preview", "You clicked the preview selected button", QMessageBox.StandardButton.Close)
+        gce = None
+        filename = self.dataset_dir_listWidget.selectedItems()[0].text()
+        if self.machine_a_radio_button.isChecked():
+            gce = self.gce_machine_a
+        elif self.machine_b_radio_button.isChecked():
+            gce = self.gce_machine_b
+        dimension = self.sz3_data_dimension_lineEdit.text()
+        filepath = str(Path(self.dataset_directory_lineEdit.text()) / filename) 
+        preview_dialog = ImageDialog(gce=gce, dataDimension=dimension, file_path=filepath)
+        if preview_dialog.exec_() == QDialog.Accepted:
+            self.rects = preview_dialog.getRects()
+            print("Rects from preview: ", self.rects)
+        else:
+            print("Use clicked cancel in the preview dialog")
 
     def on_click_compress_button_a(self):
         dimension = self.sz3_data_dimension_lineEdit.text().split()

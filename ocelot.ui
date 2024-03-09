@@ -81,7 +81,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -110,7 +110,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -139,13 +139,13 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>20</y>
        <width>233</width>
-       <height>23</height>
+       <height>27</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -161,13 +161,13 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>60</y>
        <width>210</width>
-       <height>23</height>
+       <height>27</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_12">
@@ -184,9 +184,9 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="SZ_REGION_tab">
+   <widget class="QWidget" name="GZIP_tab">
     <attribute name="title">
-     <string>SZ_REGION</string>
+     <string>GZIP</string>
     </attribute>
     <widget class="QLabel" name="label_10">
      <property name="geometry">
@@ -643,7 +643,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -676,7 +676,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
