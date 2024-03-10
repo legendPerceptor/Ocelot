@@ -2,3 +2,4 @@ __pycache__/
 globus_tokens.json
 .DS_Store
 model/
+data/
