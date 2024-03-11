@@ -204,6 +204,14 @@ class ImageDialog(QDialog):
         self.imageLabel.toggleTickMark(flag)
         self.colorBar.toggleTickMark(flag)
 
+    def accpet(self):
+        print("accept button is pressed!")
+        super().accept()
+    
+    def reject(self):
+        print("reject button is pressed!")
+        super().reject()
+
     def initUI(self, window_title):
         self.setWindowTitle(window_title)
         # self.setGeometry(100, 100, 1000, 600)
@@ -243,6 +251,9 @@ class ImageDialog(QDialog):
 
     def getRects(self):
         return self.imageLabel.getRects()
+    
+    def getRanges(self):
+        return self.colorBar.getMarkers()
 
     def image_loaded_callback(self, buf, data_min, data_max):
         qimage = QImage()

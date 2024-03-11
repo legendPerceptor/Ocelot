@@ -279,7 +279,9 @@ class UI(QDialog):
         preview_dialog = ImageDialog(gce=gce, dataDimension=dimension, file_path=filepath)
         if preview_dialog.exec_() == QDialog.Accepted:
             self.rects = preview_dialog.getRects()
+            self.ranges = preview_dialog.getRanges()
             print("Rects from preview: ", self.rects)
+            print("Ranges from preview: ", self.ranges)
         else:
             print("Use clicked cancel in the preview dialog")
 
