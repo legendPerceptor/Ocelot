@@ -87,13 +87,13 @@ class CompressorCmdFactory():
                 cur_region_str = f"{region.start_x} {region.start_y}: {region.length_x} {region.length_y} 0.01;"
                 regions_setting.append(cur_region_str)
             region_str = ''.join(regions_setting)
-            command = command + ["--region", region_str]
+            command = command + [f"--region \"{region_str}\""]
         elif ranges is not None:
             range_setting = []
             for cur_range in ranges:
                 range_setting.append(f"{cur_range.low:.2f} {cur_range.high:.2f} {cur_range.eb};")
             range_str = ' '.join(range_setting)
-            command = command + ["--range", range_str]
+            command = command + [f"--range \"{range_str}\""]
         command_str = " ".join(command)
         return command_str
 
@@ -119,6 +119,8 @@ class UI(QDialog):
         self.decompress_button_a = self.findChild(QPushButton, "decompress_button_a")
         self.transfer_button_a = self.findChild(QPushButton, "transfer_button_a")
         self.auto_transfer_button_a = self.findChild(QPushButton, "auto_transfer_button_a")
+        self.preview_data_button_ma = self.findChild(QPushButton, "preview_data_button_ma")
+        self.preview_data_button_ma.clicked.connect(self.on_click_preview_data_button_ma)
 
         self.workdir_listwidget_a = self.findChild(QListWidget, "workdir_listwidget_a")
         self.workdir_listwidget_a.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -138,6 +140,8 @@ class UI(QDialog):
         self.decompress_button_b = self.findChild(QPushButton, "decompress_button_b")
         self.transfer_button_b = self.findChild(QPushButton, "transfer_button_b")
         self.auto_transfer_button_b = self.findChild(QPushButton, "auto_transfer_button_b")
+        self.preview_data_button_mb = self.findChild(QPushButton, "preview_data_button_mb")
+        self.preview_data_button_mb.clicked.connect(self.on_click_preview_data_button_mb)
 
         self.workdir_listwidget_b = self.findChild(QListWidget, "workdir_listwidget_b")
         self.workdir_listwidget_b.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -267,6 +271,36 @@ class UI(QDialog):
 
         self.show()
 
+    def on_click_preview_data_button_ma(self):
+        gce = self.gce_machine_a
+        filename = self.workdir_listwidget_a.selectedItems()[0].text()
+        dimension = self.sz3_data_dimension_lineEdit.text()
+        filepath = str(Path(self.workdir_lineedit_a.text()) / filename) 
+        preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
+        if preview_dialog.exec_() == QDialog.Accepted:
+            self.rects = preview_dialog.getRects()
+            self.regions = [rect[1] for rect in self.rects]
+            self.ranges = preview_dialog.getRanges()
+            print("Rects from preview: ", self.rects)
+            print("Ranges from preview: ", self.ranges)
+        else:
+            print("User clicked cancel in the preview dialog")
+
+    def on_click_preview_data_button_mb(self):
+        gce = self.gce_machine_b
+        filename = self.workdir_listwidget_b.selectedItems()[0].text()
+        dimension = self.sz3_data_dimension_lineEdit.text()
+        filepath = str(Path(self.workdir_lineedit_b.text()) / filename) 
+        preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
+        if preview_dialog.exec_() == QDialog.Accepted:
+            self.rects = preview_dialog.getRects()
+            self.regions = [rect[1] for rect in self.rects]
+            self.ranges = preview_dialog.getRanges()
+            print("Rects from preview: ", self.rects)
+            print("Ranges from preview: ", self.ranges)
+        else:
+            print("User clicked cancel in the preview dialog")
+
     def toggle_multi_range_compress_radio_button(self):
         if self.multi_range_compress_radio_button.isChecked():
             if self.ranges is not None:
@@ -378,7 +412,7 @@ class UI(QDialog):
         else:
             print("Use clicked cancel in the preview dialog")
 
-    def on_click_compress_button_a(self):
+    def sz3_compress_data_machine_a(self):
         dimension = self.sz3_data_dimension_lineEdit.text().split()
         errorbound = self.sz3_error_bound_lineEdit.text()
         mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
@@ -400,7 +434,36 @@ class UI(QDialog):
         future.add_done_callback(lambda f: (print("machine A compression result:", f.result()), self.on_click_list_workdir_button_a()))
         QMessageBox.information(self, "Compress", "The compression task on Machine A has been submitted!", QMessageBox.StandardButton.Close)
 
-    def on_click_compress_button_b(self):
+    def sz_region_compress_data_machine_a(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "compress"
+        filename = self.workdir_listwidget_a.selectedItems()[0].text()
+        compressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".szr"))
+        executable = self.sz_region_executable_lineEdit_MA.text()
+
+        filepath = str(Path(self.workdir_lineedit_a.text()) / filename)
+        if self.multi_region_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound, regions=self.regions)
+        elif self.multi_range_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound, ranges=self.ranges)
+        else:
+            print("neither multi-range nor multi-region is checked!")
+            QMessageBox.information(self, "Compress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
+            return
+        print("sz_region compress command: ", command)
+        future = self.gce_machine_a.submit(run_command, command)
+            
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, "A"))
+
+    def on_click_compress_button_a(self):
+        if self.compressorTabWidget.currentIndex() == 0:
+            self.sz3_compress_data_machine_a()
+        elif self.compressorTabWidget.currentIndex() == 2:
+            self.sz_region_compress_data_machine_a()
+    
+    def sz3_compress_data_machine_b(self):
         dimension = self.sz3_data_dimension_lineEdit.text().split()
         errorbound = self.sz3_error_bound_lineEdit.text()
         mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
@@ -422,7 +485,35 @@ class UI(QDialog):
         future.add_done_callback(lambda f: (print("machine B compression result:", f.result()), self.on_click_list_workdir_button_b()))
         QMessageBox.information(self, "Compress", "The compression task on Machine B has been submitted!", QMessageBox.StandardButton.Close)
 
-    def on_click_decompress_button_a(self):
+    def sz_region_compress_data_machine_b(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "compress"
+        filename = self.workdir_listwidget_b.selectedItems()[0].text()
+        compressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".szr"))
+        executable = self.sz_region_executable_lineEdit_MB.text()
+
+        filepath = str(Path(self.workdir_lineedit_b.text()) / filename)
+        if self.multi_region_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound, regions=self.regions)
+        elif self.multi_range_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, compressed_filename, dimension, mode, errorbound, ranges=self.ranges)
+        else:
+            print("neither multi-range nor multi-region is checked!")
+            QMessageBox.information(self, "Compress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
+            return
+        print("sz_region compress command: ", command)
+        future = self.gce_machine_b.submit(run_command, command)
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, "B"))
+
+    def on_click_compress_button_b(self):
+        if self.compressorTabWidget.currentIndex() == 0:
+            self.sz3_compress_data_machine_b()
+        elif self.compressorTabWidget.currentIndex() == 2:
+            self.sz_region_compress_data_machine_b()
+
+    def sz3_decompress_machine_a(self):
         dimension = self.sz3_data_dimension_lineEdit.text().split()
         errorbound = self.sz3_error_bound_lineEdit.text()
         mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
@@ -445,7 +536,35 @@ class UI(QDialog):
 
         QMessageBox.information(self, "Decompress", "The decompression task on machine A has been submitted!", QMessageBox.StandardButton.Close)
 
-    def on_click_decompress_button_b(self):
+    def sz_region_decompress_machine_a(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "decompress"
+        filename = self.workdir_listwidget_a.selectedItems()[0].text()
+        decompressed_filename = str(Path(self.workdir_lineedit_a.text()) / (filename + ".dpr"))
+        executable = self.sz_region_executable_lineEdit_MA.text()
+
+        filepath = str(Path(self.workdir_lineedit_a.text()) / filename)
+        if self.multi_region_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, regions=self.regions)
+        elif self.multi_range_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, ranges=self.ranges)
+        else:
+            print("neither multi-range nor multi-region is checked!")
+            QMessageBox.information(self, "Decompress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
+            return
+        print("sz_region decompress command: ", command)
+        future = self.gce_machine_a.submit(run_command, command)
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, "A"))
+
+    def on_click_decompress_button_a(self):
+        if self.compressorTabWidget.currentIndex() == 0:
+            self.sz3_decompress_machine_a()
+        elif self.compressorTabWidget.currentIndex() == 2:
+            self.sz_region_decompress_machine_a()
+
+    def sz3_decompress_machine_b(self):
         dimension = self.sz3_data_dimension_lineEdit.text().split()
         errorbound = self.sz3_error_bound_lineEdit.text()
         mode = "REL" if self.sz3_eb_mode_rel_radiobutton.isChecked() else "ABS"
@@ -467,8 +586,36 @@ class UI(QDialog):
         future.add_done_callback(lambda f: (print("machine B decompression result:", f.result()), self.on_click_list_workdir_button_b()))
         QMessageBox.information(self, "Decompress", "The decompression task on machine B has been submitted!", QMessageBox.StandardButton.Close)
 
+    def sz_region_decompress_machine_b(self):
+        dimension = self.sz3_data_dimension_lineEdit.text().split()
+        errorbound = self.sz3_error_bound_lineEdit.text()
+        mode = "decompress"
+        filename = self.workdir_listwidget_b.selectedItems()[0].text()
+        decompressed_filename = str(Path(self.workdir_lineedit_b.text()) / (filename + ".dpr"))
+        executable = self.sz_region_executable_lineEdit_MB.text()
+
+        filepath = str(Path(self.workdir_lineedit_b.text()) / filename)
+        if self.multi_region_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, regions=self.regions)
+        elif self.multi_range_compress_radio_button.isChecked():
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, ranges=self.ranges)
+        else:
+            print("neither multi-range nor multi-region is checked!")
+            QMessageBox.information(self, "Decompress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
+            return
+        print("sz_region decompress command: ", command)
+        future = self.gce_machine_b.submit(run_command, command)
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, "B"))
+
+    def on_click_decompress_button_b(self):
+        if self.compressorTabWidget.currentIndex() == 0:
+            self.sz3_decompress_machine_b()
+        elif self.compressorTabWidget.currentIndex() == 2:
+            self.sz_region_decompress_machine_b()
+        
     def _compress_selected_callback(self, future, machine):
-        print("compression result:", future.result())
+        print("(de)compression result:", future.result())
         if machine == "A":
             self.on_click_list_workdir_button_a()
             print("submitted a request to list workdir a")
@@ -583,9 +730,9 @@ class UI(QDialog):
             return
         filepath = str(Path(self.dataset_directory_lineEdit.text()) / filename)
         if self.multi_region_compress_radio_button.isChecked():
-            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, regions=self.regions)
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, regions=self.regions)
         elif self.multi_range_compress_radio_button.isChecked():
-            command = CompressorCmdFactory.make_sz_region_compress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, ranges=self.ranges)
+            command = CompressorCmdFactory.make_sz_region_decompress_cmd(executable, filepath, decompressed_filename, dimension, mode, errorbound, ranges=self.ranges)
         else:
             print("neither multi-range nor multi-region is checked!")
             QMessageBox.information(self, "Decompress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
