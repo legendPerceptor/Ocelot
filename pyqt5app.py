@@ -59,26 +59,28 @@ class CompressorCmdFactory():
     
     @staticmethod
     def make_sz_region_compress_cmd(executable, filename, compressedFilename, dimension: List, mode, default_eb, regions = None, ranges = None) -> str:
-        command = [executable, "-i", filename, "-c", compressedFilename, "-m", mode, "-d"] + dimension
+        dimension_str = " ".join(dimension)
+        command = [executable, "-i", filename, "-c", compressedFilename, "-m", mode, f"-d \"{dimension_str}\""]
         if regions is not None:
             regions_setting = [f"{default_eb}>"]
             for region in regions:
                 cur_region_str = f"{region.start_x} {region.start_y}: {region.length_x} {region.length_y} 0.01;"
                 regions_setting.append(cur_region_str)
             region_str = ''.join(regions_setting)
-            command = command + ["--region", region_str]
+            command = command + [f"--region \"{region_str}\""]
         elif ranges is not None:
             range_setting = []
             for cur_range in ranges:
                 range_setting.append(f"{cur_range.low:.2f} {cur_range.high:.2f} {cur_range.eb};")
             range_str = ' '.join(range_setting)
-            command = command + ["--range", range_str]
+            command = command + [f"--range \"{range_str}\""]
         command_str = " ".join(command)
         return command_str
     
     @staticmethod
     def make_sz_region_decompress_cmd(executable, compressedFilename, decompressedFilename, dimension: List, mode, default_eb, regions = None, ranges = None) -> str:
-        command = [executable, "-c", compressedFilename, "-q", decompressedFilename, "-m", mode, "-d"] + dimension
+        dimension_str = " ".join(dimension)
+        command = [executable, "-c", compressedFilename, "-q", decompressedFilename, "-m", mode, f"-d \"{dimension_str}\""]
         if regions is not None:
             regions_setting = [f"{default_eb}>"]
             for region in regions:
@@ -555,6 +557,14 @@ class UI(QDialog):
             QMessageBox.information(self, "Compress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
             return
         print("sz_region compress command: ", command)
+        if self.machine_a_radio_button.isChecked():
+            future = self.gce_machine_a.submit(run_command, command)
+            machine = "A"
+        else:
+            future = self.gce_machine_b.submit(run_command, command)
+            machine = "B"
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, machine))
 
 
     def sz_region_data_decompression(self, filename):
@@ -581,6 +591,14 @@ class UI(QDialog):
             QMessageBox.information(self, "Decompress Selected", "You need to select a compression method to proceed!", QMessageBox.StandardButton.Close)
             return
         print("sz_region decompress command: ", command)
+        if self.machine_a_radio_button.isChecked():
+            future = self.gce_machine_a.submit(run_command, command)
+            machine = "A"
+        else:
+            future = self.gce_machine_b.submit(run_command, command)
+            machine = "B"
+        print("compression task has been submitted!")
+        future.add_done_callback(lambda f: self._compress_selected_callback(f, machine))
 
     def on_click_compress_selected_button(self):
         filename=self.dataset_dir_listWidget.selectedItems()[0].text()
@@ -788,6 +806,8 @@ class UI(QDialog):
                 self.sz3_executable_lineEdit_MA.setText(self.sz3_exe_a)
             if "dataset_dir" in defaults:
                 self.dataset_dir_a_default = defaults["dataset_dir"]
+            if "sz_region_exe" in defaults:
+                self.sz_region_executable_lineEdit_MA.setText(defaults["sz_region_exe"])
 
         if "globus_client_id" in self.machine_a_config:
             self.globus_client_id = self.machine_a_config["globus_client_id"]
@@ -817,6 +837,8 @@ class UI(QDialog):
                 self.sz3_executable_lineEdit_MB.setText(self.sz3_exe_b)
             if "dataset_dir" in defaults:
                 self.dataset_dir_b_default = defaults["dataset_dir"]
+            if "sz_region_exe" in defaults:
+                self.sz_region_executable_lineEdit_MB.setText(defaults["sz_region_exe"])
 
         if "globus_client_id" in self.machine_b_config:
             self.globus_client_id = self.machine_b_config["globus_client_id"]
