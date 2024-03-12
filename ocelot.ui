@@ -17,13 +17,13 @@
    <property name="geometry">
     <rect>
      <x>470</x>
-     <y>20</y>
+     <y>10</y>
      <width>481</width>
      <height>191</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="SZ3_tab">
     <attribute name="title">
@@ -202,22 +202,106 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="ZFP_tab">
+   <widget class="QWidget" name="SZ_REGION_tab">
     <attribute name="title">
-     <string>ZFP</string>
+     <string>SZ_REGION</string>
     </attribute>
-    <widget class="QLabel" name="label_11">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>70</y>
-       <width>271</width>
-       <height>17</height>
+       <x>10</x>
+       <y>10</y>
+       <width>443</width>
+       <height>143</height>
       </rect>
      </property>
-     <property name="text">
-      <string>The Functionality is yet to be developed</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Please set default error bound and data dimension in the SZ3 tab</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <item>
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>Machine A exe:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="sz_region_executable_lineEdit_MA"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="test_szregion_executable_button_ma">
+          <property name="text">
+           <string>Test Executable</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Machine B exe:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="sz_region_executable_lineEdit_MB"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="test_szregion_executable_button_mb">
+          <property name="text">
+           <string>Test Executable</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <item>
+         <widget class="QLabel" name="region_range_selection_status_label">
+          <property name="text">
+           <string>Not Selected</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Preview data to set ranges or regions</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
+         <widget class="QRadioButton" name="multi_range_compress_radio_button">
+          <property name="text">
+           <string>Multi-range compression</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="multi_region_compress_radio_button">
+          <property name="text">
+           <string>Multi-region compression</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>

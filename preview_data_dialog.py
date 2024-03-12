@@ -34,6 +34,10 @@ class DataRect(BaseModel):
     length_x: int = 0
     length_y: int = 0
 
+class DataRange(BaseModel):
+    low: float = 0
+    high: float = 0
+    eb: float = 0
 
 class ImageLabel(QLabel):
     def __init__(self, dim_x = None, dim_y = None):
@@ -178,9 +182,10 @@ class ImageLabel(QLabel):
             painter.setFont(QFont("Arial", 8))
             painter.drawText(x - 4, self.height() - 15, label)
 
-class ImageDialog(QDialog):
+class PreviewDialog(QDialog):
     def __init__(self, window_title = 'Image Loader with Rectangle Draw and Color Bar',
-                 gce = None, file_path = "./data/CLDHGH_1_1800_3600.dat", dataDimension = "1800 3600"):
+                 gce = None, file_path = "./data/CLDHGH_1_1800_3600.dat", dataDimension = "1800 3600",
+                 default_eb = 0.1):
         super().__init__()
        
         self.colorBar = GradientBar(cmap=plt.get_cmap('rainbow').reversed())
@@ -195,7 +200,7 @@ class ImageDialog(QDialog):
         self.gce = gce
         self.file_path = file_path
         self.dataDimensionTxt = dataDimension
-
+        self.default_eb = default_eb
         # init UI
         self.initUI(window_title)
     
@@ -253,7 +258,24 @@ class ImageDialog(QDialog):
         return self.imageLabel.getRects()
     
     def getRanges(self):
-        return self.colorBar.getMarkers()
+        return self.convertMarkersToRanges()
+    
+    def convertMarkersToRanges(self) -> list[DataRange]:
+        markers = self.colorBar.getMarkers()
+        value_range = self.colorBar.data_max - self.colorBar.data_min
+        ranges = []
+        if len(markers) == 0:
+            ranges.append(DataRange(low=self.colorBar.data_min, high=self.colorBar.data_max, eb=self.default_eb))
+            return ranges
+        for i, marker in enumerate(markers):
+            high = marker.pos * value_range + self.colorBar.data_min
+            low = ranges[i-1].high if i > 0 else self.colorBar.data_min
+            ranges.append(DataRange(low=low, high=high, eb=marker.eb))
+        if len(markers) > 0 and markers[len(markers) - 1].pos != 1:
+            high = self.colorBar.data_max
+            low = markers[len(markers) - 1].pos * value_range + self.colorBar.data_min   
+            ranges.append(DataRange(low=low, high=high, eb=self.default_eb))
+        return ranges
 
     def image_loaded_callback(self, buf, data_min, data_max):
         qimage = QImage()
@@ -277,6 +299,6 @@ if __name__ == '__main__':
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    ex = ImageDialog()
+    ex = PreviewDialog()
     ex.show()
     sys.exit(app.exec_())

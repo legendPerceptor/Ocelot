@@ -7,7 +7,6 @@ from PyQt5 import QtGui, QtCore
 from matplotlib import pyplot as plt
 from pydantic import BaseModel
 
-from typing import Optional
 
 class Marker:
     def __init__(self, pos, eb, color = None):
@@ -62,7 +61,7 @@ class GradientBar(QWidget):
         # Draw gradient
         self.updateGradient()
 
-    def getMarkers(self):
+    def getMarkers(self) -> list[Marker]:
         return self.markers
 
     def updateGradient(self):
