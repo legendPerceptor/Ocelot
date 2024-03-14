@@ -4,5 +4,6 @@ globus_transfer_id: 7e936164-de58-4e3d-85da-21aa23c07169
 globus_client_id: 1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2
 work_dir: /u/yliu4/playground
 defaults:
-  dataset_dir: /projects/bcnl/yliu4/datasets/NYX/SDRBENCH-EXASKY-NYX-512x512x512_log
+  dataset_dir: /projects/bcnl/yliu4/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600
   sz3_exe: /u/yliu4/SZ3/build/tools/sz3/sz3
+  sz_region_exe: /u/yliu4/SZ3/cmake-build-debug/test/sz_region

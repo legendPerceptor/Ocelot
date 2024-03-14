@@ -34,6 +34,18 @@ class DataRect(BaseModel):
     length_x: int = 0
     length_y: int = 0
 
+class DataRange(BaseModel):
+    low: float = 0
+    high: float = 0
+    eb: float = 0
+
+class RectObject:
+    def __init__(self, rect: QRect, dataRect: DataRect, color: QColor, eb: float):
+        self.rect = rect
+        self.dataRect = dataRect
+        self.color = color
+        self.eb = eb
+
 
 class ImageLabel(QLabel):
     def __init__(self, dim_x = None, dim_y = None):
@@ -45,13 +57,14 @@ class ImageLabel(QLabel):
         self.dim_x = dim_x
         self.dim_y = dim_y
         self.show_tick_marks = True
-        self.rects = [] # each is a tuple of QRect and dataRect
+        self.rects = [] # each is an object of RectObject
         self.previewRect = False
         self.colors = ["#e74c3c", "#f1c40f", "#2980b9", "#8e44ad", "#2c3e50"]
         self.pen = QPen(Qt.GlobalColor.red, 1)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.selectedRectIndex = None
 
-    def getRects(self):
+    def getRects(self) -> list[RectObject]:
         return self.rects
 
     def toggleTickMark(self, show_tick_marks: bool):
@@ -63,12 +76,52 @@ class ImageLabel(QLabel):
         self.dim_x = dimension[1]
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.currentImage:
+        if not self.currentImage:
+            return
+        
+        for index, rect_obj in enumerate(self.rects):
+            rect = rect_obj.rect
+            if rect.contains(event.pos()):
+                if event.button() == Qt.RightButton:
+                    self.showContextMenu(event.pos(), index)
+                elif event.button() == Qt.LeftButton:
+                    self.startPoint = event.pos()
+                    self.endPoint = self.startPoint
+                    self.selectedRectIndex = index
+                    self.update()
+                return
+
+        # the clicked position is not in existing rectangle
+        self.selectedRectIndex = None
+        if event.button() == Qt.LeftButton:
             # Adjust for the position of the imageLabel
             self.startPoint = event.pos()
             self.endPoint = self.startPoint
             self.previewRect = True
             self.update()
+
+    def showContextMenu(self, pos, index):
+        contextMenu = QMenu(self)
+        changeColorAction = contextMenu.addAction("Change Error Bound")
+        removeMarkerAction = contextMenu.addAction("Remove Region")
+
+        action = contextMenu.exec_(self.mapToGlobal(pos))
+        if action == changeColorAction:
+            self.changeRectEb(index)
+        elif action == removeMarkerAction:
+            self.removeRect(index)
+
+    def changeRectEb(self, index):
+        rect_obj = self.rects[index]
+        new_eb = QInputDialog.getDouble(self, "New Error Bound For Region", "Type in the error bound for the selected region", value=rect_tuple[3], min=-1000, max=1000, decimals=10)
+        rect_obj.eb = new_eb
+
+    def removeRect(self, index):
+        if len(self.rects) > 0:
+            del self.rects[index]
+            self.update()
+        else:
+            QMessageBox.information(self, "Action Denied", "At least one rect is required.")
 
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
         if ev.key() == Qt.Key_Z and (ev.modifiers() & Qt.ControlModifier):
@@ -96,9 +149,17 @@ class ImageLabel(QLabel):
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.currentImage:
+            if self.selectedRectIndex is not None:
+                rect_obj = self.rects[self.selectedRectIndex]
+                rect = rect_obj.rect
+                move_diff = self.endPoint - self.startPoint
+                rect.translate(move_diff)
+                rect_obj.dataRect = self.convertMousePositionToData(rect.topLeft(), rect.bottomRight())
+                self.selectedRectIndex = None
+                return
             self.endPoint = event.pos()
-            self.previewRect = False
-            self.printRect()    
+            self.printRect()
+            
             if len(self.rects) == 0 or event.modifiers() == Qt.ControlModifier:
                 rect = QRect(self.startPoint, self.endPoint).normalized()
                 curDataRect = self.convertMousePositionToData(self.startPoint, self.endPoint)
@@ -106,12 +167,16 @@ class ImageLabel(QLabel):
                     color = QColor(self.colors[len(self.rects)])
                 else:
                     color = QColor(generate_random_color_hex())
-                self.rects.append((rect, curDataRect, color))
+                eb = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
+                self.rects.append(RectObject(rect, curDataRect, color, eb))
+
             elif len(self.rects) == 1: # update the existing
                 rect = QRect(self.startPoint, self.endPoint).normalized()
+                eb = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
                 curDataRect = self.convertMousePositionToData(self.startPoint, self.endPoint)
-                self.rects[0] = (rect, curDataRect, QColor(self.colors[0]))
+                self.rects[0] = RectObject(rect, curDataRect, QColor(self.colors[0]), eb)
 
+            self.previewRect = False
             self.update()
     
     def convertMousePositionToData(self, startPos, endPos):
@@ -141,10 +206,19 @@ class ImageLabel(QLabel):
             painter.drawRect(rect)
 
         # draw existing rects
-        for (rect, _, color) in self.rects:
-            pen = QPen(color)
-            painter.setPen(pen)
-            painter.drawRect(rect)
+        for index, rect_obj in enumerate(self.rects):
+            if index == self.selectedRectIndex:
+                pen = QPen(rect_obj.color, 3)
+                rect = self.rects[self.selectedRectIndex].rect
+                move_diff = self.endPoint - self.startPoint
+                rect_temp = QRect(rect)
+                rect_temp.translate(move_diff)
+                painter.setPen(pen)
+                painter.drawRect(rect_temp)
+            else:    
+                pen = QPen(rect_obj.color)
+                painter.setPen(pen)
+                painter.drawRect(rect_obj.rect)
         
         # draw ticks and marks
         if self.show_tick_marks and self.dim_x is not None and self.dim_y is not None:
@@ -178,9 +252,10 @@ class ImageLabel(QLabel):
             painter.setFont(QFont("Arial", 8))
             painter.drawText(x - 4, self.height() - 15, label)
 
-class ImageDialog(QDialog):
+class PreviewDialog(QDialog):
     def __init__(self, window_title = 'Image Loader with Rectangle Draw and Color Bar',
-                 gce = None, file_path = "./data/CLDHGH_1_1800_3600.dat", dataDimension = "1800 3600"):
+                 gce = None, file_path = "./data/CLDHGH_1_1800_3600.dat", dataDimension = "1800 3600",
+                 default_eb = 0.1):
         super().__init__()
        
         self.colorBar = GradientBar(cmap=plt.get_cmap('rainbow').reversed())
@@ -195,7 +270,7 @@ class ImageDialog(QDialog):
         self.gce = gce
         self.file_path = file_path
         self.dataDimensionTxt = dataDimension
-
+        self.default_eb = default_eb
         # init UI
         self.initUI(window_title)
     
@@ -203,6 +278,14 @@ class ImageDialog(QDialog):
         flag = self.toggle_tick_mark_checkbox.isChecked()
         self.imageLabel.toggleTickMark(flag)
         self.colorBar.toggleTickMark(flag)
+
+    def accpet(self):
+        print("accept button is pressed!")
+        super().accept()
+    
+    def reject(self):
+        print("reject button is pressed!")
+        super().reject()
 
     def initUI(self, window_title):
         self.setWindowTitle(window_title)
@@ -243,6 +326,26 @@ class ImageDialog(QDialog):
 
     def getRects(self):
         return self.imageLabel.getRects()
+    
+    def getRanges(self):
+        return self.convertMarkersToRanges()
+    
+    def convertMarkersToRanges(self) -> list[DataRange]:
+        markers = self.colorBar.getMarkers()
+        value_range = self.colorBar.data_max - self.colorBar.data_min
+        ranges = []
+        if len(markers) == 0:
+            ranges.append(DataRange(low=self.colorBar.data_min, high=self.colorBar.data_max, eb=self.default_eb))
+            return ranges
+        for i, marker in enumerate(markers):
+            high = marker.pos * value_range + self.colorBar.data_min
+            low = ranges[i-1].high if i > 0 else self.colorBar.data_min
+            ranges.append(DataRange(low=low, high=high, eb=marker.eb))
+        if len(markers) > 0 and markers[len(markers) - 1].pos != 1:
+            high = self.colorBar.data_max
+            low = markers[len(markers) - 1].pos * value_range + self.colorBar.data_min   
+            ranges.append(DataRange(low=low, high=high, eb=self.default_eb))
+        return ranges
 
     def image_loaded_callback(self, buf, data_min, data_max):
         qimage = QImage()
@@ -266,6 +369,6 @@ if __name__ == '__main__':
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    ex = ImageDialog()
+    ex = PreviewDialog()
     ex.show()
     sys.exit(app.exec_())
