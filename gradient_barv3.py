@@ -108,7 +108,7 @@ class GradientBar(QWidget):
             self.update()
 
     def removeMarker(self, marker_index):
-        if len(self.markers) > 1:  # Prevent removing all markers
+        if len(self.markers) > 0:  # Prevent removing all markers
             del self.markers[marker_index]
             self.update()
         else:

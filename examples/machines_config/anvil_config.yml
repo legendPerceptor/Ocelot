@@ -6,3 +6,4 @@ work_dir: /home/x-yliu4/playground
 defaults:
   dataset_dir: /anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600
   sz3_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3/build/tools/sz3/sz3
+  sz_region_exe: /home/x-yliu4/sz3-yuanjian/SZ3/build/test/sz_region

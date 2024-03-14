@@ -294,7 +294,7 @@ class UI(QDialog):
         preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
         if preview_dialog.exec_() == QDialog.Accepted:
             self.rects = preview_dialog.getRects()
-            self.regions = [rect[1] for rect in self.rects]
+            self.regions = [rect.dataRect for rect in self.rects]
             self.ranges = preview_dialog.getRanges()
             print("Rects from preview: ", self.rects)
             print("Ranges from preview: ", self.ranges)
@@ -395,17 +395,23 @@ class UI(QDialog):
     
     def on_click_preview_selected_button(self):
         gce = None
+        if len(self.dataset_dir_listWidget.selectedItems()) == 0:
+            QMessageBox.information(self, "Preview Data", "You need to select one file to predict", QMessageBox.StandardButton.Close)
+            return
         filename = self.dataset_dir_listWidget.selectedItems()[0].text()
         if self.machine_a_radio_button.isChecked():
             gce = self.gce_machine_a
         elif self.machine_b_radio_button.isChecked():
             gce = self.gce_machine_b
+        else:
+            QMessageBox.information(self, "Preview Data", "You need to select which machine the data is on", QMessageBox.StandardButton.Close)
+            return
         dimension = self.sz3_data_dimension_lineEdit.text()
         filepath = str(Path(self.dataset_directory_lineEdit.text()) / filename) 
         preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
         if preview_dialog.exec_() == QDialog.Accepted:
             self.rects = preview_dialog.getRects()
-            self.regions = [rect[1] for rect in self.rects]
+            self.regions = [rect.dataRect for rect in self.rects]
             self.ranges = preview_dialog.getRanges()
             print("Rects from preview: ", self.rects)
             print("Ranges from preview: ", self.ranges)
