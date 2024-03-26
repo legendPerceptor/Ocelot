@@ -19,6 +19,8 @@ from typing import List
 class Reference(BaseModel):
     name: str
     location: Path
+    fasta_url: str
+    fai_url: str
 
 class Compressor(BaseModel):
     name: str
@@ -30,7 +32,7 @@ class Compressor(BaseModel):
 class Dataset(BaseModel):
     name: str
     fileNames: List[str]
-    url: str
+    url: List[str]
     folder: Path
     reference: str
 
@@ -59,12 +61,12 @@ def setup_logger(name, log_file, level=logging.INFO):
 
     return logger
 
-current_time = datetime.now()
-log_prefix = f"{current_time.month}-{current_time.day}-{current_time.year}_{current_time.hour}-{current_time.minute}-{current_time.second}"
-os.makedirs(log_prefix)
+# current_time = datetime.now()
+# log_prefix = f"{current_time.month}-{current_time.day}-{current_time.year}_{current_time.hour}-{current_time.minute}-{current_time.second}"
+# os.makedirs(log_prefix)
 
-logger = setup_logger('app_logger', f'{log_prefix}/app.log')
-verboseLogger = setup_logger('verbose_logger', f'{log_prefix}/verbose.log', logging.DEBUG)
+# logger = setup_logger('app_logger', f'{log_prefix}/app.log')
+# verboseLogger = setup_logger('verbose_logger', f'{log_prefix}/verbose.log', logging.DEBUG)
 
 
 class ResourceUsage(threading.Thread):
@@ -231,7 +233,7 @@ def benchmark(config, do_compression: bool, do_decompression: bool):
     references = {reference["name"] : Reference(**reference) for reference in config["references"]}
     datasets = [Dataset(**dataset) for dataset in config["datasets"]]
     compressors = [Compressor(**compressor) for compressor in config["compressors"]]
-    stats_file_path = f"{log_prefix}/{log_prefix}_stats.csv"
+    stats_file_path = f"{log_prefix}/stats.csv"
     global_stats = {
         "compressor_name": [],
         "dataset_name": [],
@@ -303,6 +305,19 @@ def main():
 
     args = parser.parse_args()
 
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+
+    global log_prefix, verboseLogger, logger
+    current_time = datetime.now()
+    metrics_folder = config["global"]["metrics_output_folder"]
+    log_prefix = str(Path(metrics_folder) / "logs" / f"{current_time.month}-{current_time.day}-{current_time.year}_{current_time.hour}-{current_time.minute}-{current_time.second}")
+    os.makedirs(log_prefix)
+
+    logger = setup_logger('app_logger', f'{log_prefix}/app.log')
+    verboseLogger = setup_logger('verbose_logger', f'{log_prefix}/verbose.log', logging.DEBUG)
+    logger.info(f"saving all metrics in {metrics_folder}")
+
     do_compression = True
     do_decompression = True
     if(args.mode == 'compress'):
@@ -315,8 +330,6 @@ def main():
         logger.info("This program does full compression/decompression and will collect all data")
 
 
-    with open(args.config, 'r') as f:
-        config = yaml.safe_load(f)
     logger.info("finished loading YAML config, ready for benchmarking!")
     benchmark(config, do_compression, do_decompression)
     logger.info("Congratulations! You have finished all benchmarking!")
