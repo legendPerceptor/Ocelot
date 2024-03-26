@@ -1,0 +1,16 @@
+reference:
+  name: "NA12878"
+  url: https://storage.googleapis.com/genomics-public-data/resources/broad/hg38/v0/Homo_sapiens_assembly38.fasta
+datasets:
+  - name: "E100024251_L01_104"
+    url1: ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/E100024251_L01_104_1.fq.gz
+    url2: ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/E100024251_L01_104_2.fq.gz
+  - name: "S200032449_L01"
+    url1: ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003664/CNS0632818/CNX0547623/CNR0640340/S200032449_L01_read_1.fq.gz
+    url2: ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003664/CNS0632818/CNX0547623/CNR0640340/S200032449_L01_read_2.fq.gz
+  - name: "BGISEQ500_PCRfree_NA12878_CL100076243_L01"
+    url1: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_1.fq.gz
+    url2: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_2.fq.gz
+  - name: "E100030471QC960_L01_41"
+    url1: ftp://ftp.cngb.org/pub/CNSA/data2/CNP0002679/CNS0516004/CNX0414265/CNR0497792/E100030471QC960_L01_41_1.fq.gz
+    url2: ftp://ftp.cngb.org/pub/CNSA/data2/CNP0002679/CNS0516004/CNX0414265/CNR0497792/E100030471QC960_L01_41_2.fq.gz
