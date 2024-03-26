@@ -1,0 +1,27 @@
+global:
+  output_folder: "/expanse/lustre/scratch/yliu4/temp_project/genome/"
+
+datasets:
+  - name: "BGISEQ500_PCRfree"
+    fileNames: ["BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_1.fq.gz", "BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_2.fq.gz"]
+    url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_1.fq.gz
+    folder: "/expanse/lustre/projects/chi151/yliu4/genome-data"
+    reference: "NA12878"
+  - name: "E100024251_L01_104"
+    fileNames: ["E100024251_L01_104_1.fq.gz", "E100024251_L01_104_2.fq.gz"]
+    url: ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/E100024251_L01_104_1.fq.gz
+    folder: "/expanse/lustre/projects/chi151/yliu4/genome-data"
+    reference: "NA12878"
+
+references:
+  - name: "NA12878"
+    location: "/expanse/lustre/projects/chi151/yliu4/genome-data/Homo_sapiens_assembly38.fasta"
+    url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/NIST_NA12878_HG001_HiSeq_300x/"
+
+compressors:
+  - name: "globa-dominant-bitmap-t16"
+    ext: ".globa"
+    executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
+    compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
+        "--line_number", "100000"]
+    decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16"]

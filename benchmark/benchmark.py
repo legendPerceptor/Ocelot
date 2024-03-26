@@ -63,8 +63,8 @@ current_time = datetime.now()
 log_prefix = f"{current_time.month}-{current_time.day}-{current_time.year}_{current_time.hour}-{current_time.minute}-{current_time.second}"
 os.makedirs(log_prefix)
 
-logger = setup_logger('app_logger', f'{log_prefix}/{log_prefix}_app.log')
-verboseLogger = setup_logger('verbose_logger', f'{log_prefix}/{log_prefix}_verbose.log', logging.DEBUG)
+logger = setup_logger('app_logger', f'{log_prefix}/app.log')
+verboseLogger = setup_logger('verbose_logger', f'{log_prefix}/verbose.log', logging.DEBUG)
 
 
 class ResourceUsage(threading.Thread):
