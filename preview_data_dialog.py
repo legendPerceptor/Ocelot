@@ -113,7 +113,8 @@ class ImageLabel(QLabel):
 
     def changeRectEb(self, index):
         rect_obj = self.rects[index]
-        new_eb = QInputDialog.getDouble(self, "New Error Bound For Region", "Type in the error bound for the selected region", value=rect_tuple[3], min=-1000, max=1000, decimals=10)
+        print("rect obj eb:", rect_obj.eb)
+        new_eb, ok_ = QInputDialog.getDouble(self, "New Error Bound For Region", "Type in the error bound for the selected region", value=rect_obj.eb, min=-1000, max=1000, decimals=10)
         rect_obj.eb = new_eb
 
     def removeRect(self, index):
@@ -167,12 +168,12 @@ class ImageLabel(QLabel):
                     color = QColor(self.colors[len(self.rects)])
                 else:
                     color = QColor(generate_random_color_hex())
-                eb = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
+                eb, ok_ = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
                 self.rects.append(RectObject(rect, curDataRect, color, eb))
 
             elif len(self.rects) == 1: # update the existing
                 rect = QRect(self.startPoint, self.endPoint).normalized()
-                eb = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
+                eb, ok_ = QInputDialog.getDouble(self, "Error Bound For Region", "Type in the error bound for the selected region", value=0.1, min=-1000, max=1000, decimals=10)
                 curDataRect = self.convertMousePositionToData(self.startPoint, self.endPoint)
                 self.rects[0] = RectObject(rect, curDataRect, QColor(self.colors[0]), eb)
 

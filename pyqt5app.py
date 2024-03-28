@@ -64,7 +64,8 @@ class CompressorCmdFactory():
         if regions is not None:
             regions_setting = [f"{default_eb}>"]
             for region in regions:
-                cur_region_str = f"{region.start_x} {region.start_y}: {region.length_x} {region.length_y} 0.01;"
+                data_rect = region.dataRect
+                cur_region_str = f"{data_rect.start_x} {data_rect.start_y}: {data_rect.length_x} {data_rect.length_y} {region.eb};"
                 regions_setting.append(cur_region_str)
             region_str = ''.join(regions_setting)
             command = command + [f"--region \"{region_str}\""]
@@ -84,7 +85,8 @@ class CompressorCmdFactory():
         if regions is not None:
             regions_setting = [f"{default_eb}>"]
             for region in regions:
-                cur_region_str = f"{region.start_x} {region.start_y}: {region.length_x} {region.length_y} 0.01;"
+                data_rect = region.dataRect
+                cur_region_str = f"{data_rect.start_x} {data_rect.start_y}: {data_rect.length_x} {data_rect.length_y} {region.eb};"
                 regions_setting.append(cur_region_str)
             region_str = ''.join(regions_setting)
             command = command + [f"--region \"{region_str}\""]
@@ -411,7 +413,7 @@ class UI(QDialog):
         preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
         if preview_dialog.exec_() == QDialog.Accepted:
             self.rects = preview_dialog.getRects()
-            self.regions = [rect.dataRect for rect in self.rects]
+            self.regions = self.rects
             self.ranges = preview_dialog.getRanges()
             print("Rects from preview: ", self.rects)
             print("Ranges from preview: ", self.ranges)
