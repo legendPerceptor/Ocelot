@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="SZ3_tab">
     <attribute name="title">
@@ -184,29 +184,11 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="GZIP_tab">
-    <attribute name="title">
-     <string>GZIP</string>
-    </attribute>
-    <widget class="QLabel" name="label_10">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>70</y>
-       <width>271</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>The Functionality is yet to be developed</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QWidget" name="SZ_REGION_tab">
     <attribute name="title">
      <string>SZ_REGION</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -302,6 +284,42 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>SZ_SPLIT</string>
+    </attribute>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>441</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Please set error bound and data dimension in the SZ3 tab</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="GZIP_tab">
+    <attribute name="title">
+     <string>GZIP</string>
+    </attribute>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>70</y>
+       <width>271</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>We use the tar command to compress</string>
+     </property>
     </widget>
    </widget>
   </widget>

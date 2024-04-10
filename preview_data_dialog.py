@@ -20,7 +20,7 @@ from pydantic import BaseModel
 
 import random
 
-from globus_compute_util import get_preview_data
+from globus_compute_util import get_preview_data, get_partial_preview_data
 
 def generate_random_color_hex():
     """Generate a random color in hexadecimal format."""
@@ -335,6 +335,12 @@ class PreviewDialog(QDialog):
         markers = self.colorBar.getMarkers()
         value_range = self.colorBar.data_max - self.colorBar.data_min
         ranges = []
+        markers = sorted(markers, key=lambda marker: marker.pos, reverse=True)
+        for marker in markers:
+            marker.pos = 1 - marker.pos
+        print("markers:")
+        for marker in markers:
+            print(marker)
         if len(markers) == 0:
             ranges.append(DataRange(low=self.colorBar.data_min, high=self.colorBar.data_max, eb=self.default_eb))
             return ranges
@@ -358,12 +364,28 @@ class PreviewDialog(QDialog):
         self.update()
 
     def loadImage(self):
-        if self.gce == None:
-            img, data_min, data_max = get_preview_data(self.dataDimensionTxt, self.file_path)
-            self.image_loaded_callback(img, data_min, data_max)
-        else:
-            future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path)
-            future.add_done_callback(lambda f: self.image_loaded_callback(*f.result()))
+        if len(self.dimension) == 3:
+            # Ask the user to select which layer to preview.
+            layer_number, ok = QInputDialog.getInt(self, title=f"please select which layer to preivew in the range [0, {self.dimension[2]}]",
+                                               value=0, min=0, max=self.dimension[2])
+            if not ok:
+                QMessageBox.information(self, "Layer selection error", "The layer you selected is not valid")
+                return
+            
+            if self.gce == None:
+                img, data_min, data_max = get_partial_preview_data(self.dataDimensionTxt, self.file_path, layer_number)
+                self.image_loaded_callback(img, data_min, data_max)
+            else:
+                future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path, layer_number)
+                future.add_done_callback(lambda f: self.image_loaded_callback(*f.result()))
+
+        elif len(self.dimension) == 2:
+            if self.gce == None:
+                img, data_min, data_max = get_preview_data(self.dataDimensionTxt, self.file_path)
+                self.image_loaded_callback(img, data_min, data_max)
+            else:
+                future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path)
+                future.add_done_callback(lambda f: self.image_loaded_callback(*f.result()))
         
 
 if __name__ == '__main__':
