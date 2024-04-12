@@ -8,7 +8,8 @@ datasets:
     ext: ".f32"
     fileNames: ["velocity_x.f32", "velocity_y.f32", "velocity_z.f32", "temperature.f32"]
     folder: "/anvil/projects/x-cis220161/datasets/NYX_512x512x512/SDRBENCH-EXASKY-NYX-512x512x512_log"
-    ebs: [1e-1, 1e-3, 1e-5]
+    ebs: [1e-1]
+    depth: [1, 2, 8, 16, 32, 64]
   - name: "CESM-1800x3600"
     dimension: [1800, 3600]
     ext: ".dat"
@@ -27,6 +28,22 @@ datasets:
     ext: ".dat"
     folder: "/anvil/projects/x-cis220161/datasets/Hurricane-ISABEL/logdata"
     ebs: [1e-1, 1e-3, 1e-5]
+  - name: "Turbulent-Channel-Flow"
+    dimension: [4096, 4096, 4096]
+    fileNames: ["isotropic_pressure_4096x4096x4096_float32.raw"]
+    ext: ".raw"
+    folder: /anvil/projects/x-cis220161/datasets/large-single-file-data/RAW-Files
+    ebs: [1e-2]
+    depths: [1, 4, 8, 16, 32]
+    isFloat64: False
+  - name: "Forced Isotropic Turbulence"
+    dimension: [10240, 7680, 1536]
+    fileNames: ["dns_10240x7680x1536_float64.raw"]
+    ext: ".raw"
+    folder: /anvil/projects/x-cis220161/datasets/large-single-file-data/RAW-Files
+    ebs: [1e-2]
+    depths: [1, 4, 8, 16, 32]
+    isFloat64: True
 
 
 compressors:
@@ -35,3 +52,8 @@ compressors:
     executable: "/home/x-yliu4/sz3-yuanjian/official_sz3/SZ3/build/tools/sz3/sz3"
     compress_params: ["-f", "-i", "$fileName", "-z", "$compressedFileName", "-M", "ABS", "$eb"] # append dimension at the end e.g. -3 512 512 512
     decompress_params: ["-f", "-z", "$compressedFileName", "-o", "$decompressedFileName", "-M", "ABS", "$eb"] # append dimension at the end
+  - name: "sz3-split"
+    ext: ".sz3split"
+    executable: "/home/x-yliu4/sz3-yuanjian/official_sz3/SZ3-Split/build/tools/sz3-split"
+    compress_params: ["compress", "-i", "$filename", "-o", "$compressedFileName", "--mode layer", "-e", "$eb"]
+    decompress_params: ["decompress", "-i", "$compressedFileName", "-o", "$decompressedFileName", "--mode layer", "-e", "$eb"]
