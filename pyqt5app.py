@@ -102,7 +102,7 @@ class CompressorCmdFactory():
 class UI(QDialog):
     def __init__(self):
         super(UI, self).__init__()
-        uic.loadUi("ocelot.ui", self)
+        uic.loadUi("globazip.ui", self)
 
         self.globus_client_id = "1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2"
         self.globus_token_filename = "globus_tokens.json"
@@ -277,6 +277,11 @@ class UI(QDialog):
         gce = self.gce_machine_a
         filename = self.workdir_listwidget_a.selectedItems()[0].text()
         dimension = self.sz3_data_dimension_lineEdit.text()
+        parsed_dimension = [int(dim) for dim in dimension.split()]
+        if dimension == "" or len(parsed_dimension) == 0:
+            print("Please set dimension before preview")
+            QMessageBox.information(self, "Preview Error", "You need to set data dimension before preview!", QMessageBox.StandardButton.Close)
+            return
         filepath = str(Path(self.workdir_lineedit_a.text()) / filename) 
         preview_dialog = PreviewDialog(gce=gce, dataDimension=dimension, file_path=filepath, default_eb=float(self.sz3_error_bound_lineEdit.text()))
         if preview_dialog.exec_() == QDialog.Accepted:
@@ -794,7 +799,7 @@ class UI(QDialog):
             self.tc = globus_sdk.TransferClient(authorizer=self.globus_authorizer)
         except globus_utils.GlobusAuthFileError:
             print(
-                'Performing authentication for the Ocelot app.',
+                'Performing authentication for the GlobaZip app.',
             )
             globus_utils.proxystore_authenticate(
                 w=self,

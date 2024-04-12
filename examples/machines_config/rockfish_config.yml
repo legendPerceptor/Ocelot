@@ -3,3 +3,10 @@ globus_compute_id: 0e2c9d3b-7c03-4957-942a-395addd8d54d
 globus_transfer_id: 54fbc607-d959-499d-8201-c2c686eec4ba
 globus_client_id: 1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2
 work_dir: /home/x-yliu4/playground
+defaults:
+  job_account: yliu4
+  partition: shared
+  dataset_dir: /home/yliu4/data_yliu4/NYX_512x512x512
+  sz3_exe: /home/yliu4/SZ3/build/tools/sz3/sz3
+  sz3_split_exe: /home/yliu4/SZ3/build/tools/sz3-split/sz3_split
+  sz_region_exe: /home/yliu4/region/SZ3/build/test/sz_region

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Ocelot 2.0</string>
+   <string>GlobaZip</string>
   </property>
   <widget class="QTabWidget" name="compressorTabWdiget">
    <property name="geometry">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="SZ3_tab">
     <attribute name="title">

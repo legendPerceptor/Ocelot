@@ -310,10 +310,23 @@ class PreviewDialog(QDialog):
 
         containerLayout.addLayout(buttonLayout)
 
+        checkboxLayout = QHBoxLayout()
+        
         self.toggle_tick_mark_checkbox = QCheckBox('show ticks and marks')
         self.toggle_tick_mark_checkbox.setChecked(True)
         self.toggle_tick_mark_checkbox.clicked.connect(self.toggleTickMark)
-        containerLayout.addWidget(self.toggle_tick_mark_checkbox)
+        checkboxLayout.addWidget(self.toggle_tick_mark_checkbox)
+        
+        self.floatButtonGroup = QButtonGroup()
+        self.float32RadioButton = QRadioButton('float32')
+        self.float32RadioButton.setChecked(True)
+        self.float64RadioButton = QRadioButton('float64')
+        self.floatButtonGroup.addButton(self.float32RadioButton)
+        self.floatButtonGroup.addButton(self.float64RadioButton)
+        checkboxLayout.addWidget(self.float32RadioButton)
+        checkboxLayout.addWidget(self.float64RadioButton)
+        containerLayout.addLayout(checkboxLayout)
+        # containerLayout.addWidget(self.toggle_tick_mark_checkbox)
         # Limit the button height
         self.loadImageButton.setMaximumHeight(40)
 
@@ -364,27 +377,29 @@ class PreviewDialog(QDialog):
         self.update()
 
     def loadImage(self):
+        is_float64 = self.float64RadioButton.isChecked()
         if len(self.dimension) == 3:
             # Ask the user to select which layer to preview.
-            layer_number, ok = QInputDialog.getInt(self, title=f"please select which layer to preivew in the range [0, {self.dimension[2]}]",
+            input_dialog_prompt = f"please select which layer to preivew in the range [0, {self.dimension[2]}]"
+            layer_number, ok = QInputDialog.getInt(self, "Select Layer", input_dialog_prompt,
                                                value=0, min=0, max=self.dimension[2])
             if not ok:
                 QMessageBox.information(self, "Layer selection error", "The layer you selected is not valid")
                 return
             
             if self.gce == None:
-                img, data_min, data_max = get_partial_preview_data(self.dataDimensionTxt, self.file_path, layer_number)
+                img, data_min, data_max = get_partial_preview_data(self.dataDimensionTxt, self.file_path, layer_number, is_float64)
                 self.image_loaded_callback(img, data_min, data_max)
             else:
-                future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path, layer_number)
+                future = self.gce.submit(get_partial_preview_data, self.dataDimensionTxt, self.file_path, layer_number, is_float64)
                 future.add_done_callback(lambda f: self.image_loaded_callback(*f.result()))
 
         elif len(self.dimension) == 2:
             if self.gce == None:
-                img, data_min, data_max = get_preview_data(self.dataDimensionTxt, self.file_path)
+                img, data_min, data_max = get_preview_data(self.dataDimensionTxt, self.file_path, is_float64)
                 self.image_loaded_callback(img, data_min, data_max)
             else:
-                future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path)
+                future = self.gce.submit(get_preview_data, self.dataDimensionTxt, self.file_path, is_float64)
                 future.add_done_callback(lambda f: self.image_loaded_callback(*f.result()))
         
 

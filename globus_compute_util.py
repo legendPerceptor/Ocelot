@@ -41,7 +41,7 @@ def get_partial_preview_data(dimension: str, data_file: str, layer_number: int, 
     
     with open(data_file, 'rb') as f:
         f.seek(layer_number * layer_size * np.dtype(data_type).itemsize)
-        layer_data = np.fromfile(f, dtype=data_type, count = layer_size)
+        layer_data = np.fromfile(f, dtype=data_type, count=layer_size)
         layer_data = layer_data.reshape(dimension[0], dimension[1])
 
     fig = Figure(dpi=100)
