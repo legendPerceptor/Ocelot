@@ -18,10 +18,35 @@ def remove_files(files):
         return False
     return True
 
+def save_str_to_file(filepath, content: str):
+    with open(filepath, 'w') as f:
+        f.write(content)
+    return 0
+
 def run_command(command):
     import subprocess
     return subprocess.check_output(command, shell=True).decode().strip()
 
+
+def build_sbatch_file(job_config, command:str, work_dir:str, module_load:str=""):
+    from pathlib import Path
+    log_file_prefix = str(Path(work_dir) / job_config["name"])
+    sbatch_file = f'''#!/bin/bash
+#SBATCH --job-name={job_config["name"]}
+#SBATCH --time={job_config["time"]}
+#SBATCH -p {job_config["partition"]}
+#SBATCH -A {job_config["account"]}
+#SBATCH --nodes={job_config["nodes"]}
+#SBATCH --ntasks-per-node={job_config["ntasks_per_node"]}
+#SBATCH -o {log_file_prefix}-%j.out
+#SBATCH -e {log_file_prefix}-%j.error
+
+{module_load}
+date
+{command}
+date
+'''
+    return sbatch_file
 
 def get_partial_preview_data(dimension: str, data_file: str, layer_number: int, is_float64: bool=False):
     import matplotlib

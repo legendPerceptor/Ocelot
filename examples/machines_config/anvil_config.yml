@@ -5,6 +5,7 @@ globus_client_id: 1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2
 work_dir: /home/x-yliu4/playground
 defaults:
   job_account: cis220161
+  user: x-yliu4
   partition: shared
   dataset_dir: /anvil/projects/x-cis220161/datasets/Miranda #/anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600
   sz3_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3/build/tools/sz3/sz3

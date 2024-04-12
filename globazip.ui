@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>962</width>
+    <width>976</width>
     <height>742</height>
    </rect>
   </property>
@@ -18,12 +18,12 @@
     <rect>
      <x>470</x>
      <y>10</y>
-     <width>481</width>
+     <width>501</width>
      <height>191</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="SZ3_tab">
     <attribute name="title">
@@ -85,7 +85,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
+       <y>90</y>
        <width>358</width>
        <height>33</height>
       </rect>
@@ -114,7 +114,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>130</y>
+       <y>120</y>
        <width>358</width>
        <height>33</height>
       </rect>
@@ -286,7 +286,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab">
+   <widget class="QWidget" name="SZ_SPLIT_tab">
     <attribute name="title">
      <string>SZ_SPLIT</string>
     </attribute>
@@ -303,23 +303,273 @@
       <string>Please set error bound and data dimension in the SZ3 tab</string>
      </property>
     </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>374</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_18">
+      <item>
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>Machine A exe:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sz_split_executable_lineEdit_MA"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="test_szsplit_executable_button_ma">
+        <property name="text">
+         <string>Test Executable</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>374</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_19">
+      <item>
+       <widget class="QLabel" name="label_23">
+        <property name="text">
+         <string>Machine B exe:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sz_split_executable_lineEdit_MB"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="test_szsplit_executable_button_mb">
+        <property name="text">
+         <string>Test Executable</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>372</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_17">
+      <item>
+       <widget class="QLabel" name="label_20">
+        <property name="text">
+         <string>nNode:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="szSplitnNodeSpinBox">
+        <property name="maximum">
+         <number>16</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_21">
+        <property name="text">
+         <string>ntasks-per-node:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="szSplitnTaskSpinBox"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="szSplitmpiModecheckBox">
+        <property name="text">
+         <string>MPI mode</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>266</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_23">
+      <item>
+       <widget class="QLabel" name="label_27">
+        <property name="text">
+         <string>layer depth:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="szSplitLayerDepthSpinBox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="checkSZsplitJobConfigButton">
+        <property name="text">
+         <string>Check Job Config</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QWidget" name="GZIP_tab">
+   <widget class="QWidget" name="Genome_tab">
     <attribute name="title">
-     <string>GZIP</string>
+     <string>Genome</string>
     </attribute>
     <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>70</y>
-       <width>271</width>
+       <x>10</x>
+       <y>10</y>
+       <width>111</width>
        <height>17</height>
       </rect>
      </property>
      <property name="text">
-      <string>We use the tar command to compress</string>
+      <string>Reference Path:</string>
      </property>
+    </widget>
+    <widget class="QLineEdit" name="referencePath_lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>10</y>
+       <width>131</width>
+       <height>25</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="paired_compression_checkbox">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>10</y>
+       <width>161</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Paired Compression</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>388</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_20">
+      <item>
+       <widget class="QLabel" name="label_25">
+        <property name="text">
+         <string>ntasks-per-node:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="genome_ntasks_spinbox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buildIndexButton">
+        <property name="text">
+         <string>Build Index</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="checkGenomeJobConfigButton">
+        <property name="text">
+         <string>Check Job Config</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>374</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_21">
+      <item>
+       <widget class="QLabel" name="label_24">
+        <property name="text">
+         <string>Machine A exe:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="genome_executable_lineEdit_MA"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="test_genome_executable_button_ma">
+        <property name="text">
+         <string>Test Executable</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>374</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_22">
+      <item>
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>Machine B exe:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="genome_executable_lineEdit_MB"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="test_genome_executable_button_mb">
+        <property name="text">
+         <string>Test Executable</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>
@@ -616,7 +866,7 @@
     <rect>
      <x>470</x>
      <y>470</y>
-     <width>481</width>
+     <width>501</width>
      <height>261</height>
     </rect>
    </property>
@@ -626,7 +876,14 @@
       <item>
        <widget class="QPushButton" name="authenticate_button">
         <property name="text">
-         <string>Authenticate Globus Transfer For Two Machines</string>
+         <string>Authenticate Transfer</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="remove_authenticate_button">
+        <property name="text">
+         <string>Remove Authentication</string>
         </property>
        </widget>
       </item>
@@ -649,12 +906,30 @@
     <item>
      <widget class="QTextEdit" name="transfer_performance_textEdit"/>
     </item>
-    <item alignment="Qt::AlignHCenter">
-     <widget class="QLabel" name="label_14">
-      <property name="text">
-       <string>Current Status</string>
-      </property>
-     </widget>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_24">
+      <item>
+       <widget class="QPushButton" name="checkJobStatusButton">
+        <property name="text">
+         <string>Check Job Status</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>Current Status</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="checkTransferStatusButton">
+        <property name="text">
+         <string>Check Transfer Status</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QTextEdit" name="current_status_textEdit"/>
@@ -666,7 +941,7 @@
     <rect>
      <x>470</x>
      <y>210</y>
-     <width>481</width>
+     <width>501</width>
      <height>251</height>
     </rect>
    </property>
