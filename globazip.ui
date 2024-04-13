@@ -361,7 +361,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -407,7 +407,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -495,7 +495,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="genome_ntasks_spinbox"/>
+       <widget class="QSpinBox" name="genome_ntasks_spinbox">
+        <property name="value">
+         <number>8</number>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="buildIndexButton">

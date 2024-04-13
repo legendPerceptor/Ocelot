@@ -38,6 +38,7 @@ def build_sbatch_file(job_config, command:str, work_dir:str, module_load:str="")
 #SBATCH -A {job_config["account"]}
 #SBATCH --nodes={job_config["nodes"]}
 #SBATCH --ntasks-per-node={job_config["ntasks_per_node"]}
+#SBATCH --mem={job_config["memory"]}
 #SBATCH -o {log_file_prefix}-%j.out
 #SBATCH -e {log_file_prefix}-%j.error
 

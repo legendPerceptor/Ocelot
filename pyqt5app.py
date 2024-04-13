@@ -11,6 +11,9 @@ import globus_sdk
 
 import yaml
 
+from tabulate import tabulate
+from functools import partial
+
 from globus_compute_sdk import Client, Executor
 from globus_compute_sdk.serialize import CombinedCode
 
@@ -171,9 +174,11 @@ class UI(QDialog):
         # Globus Transfer Authentication
         self.authenticate_button = self.findChild(QPushButton, "authenticate_button")
         self.authenticate_status_label= self.findChild(QLabel, "authenticate_status_label")
+        self.remove_authentication_button = self.findChild(QPushButton, "remove_authenticate_button")
 
         # Button Callback Connection
         self.authenticate_button.clicked.connect(self.on_click_authenticate_button)
+        self.remove_authentication_button.clicked.connect(self.on_click_remove_authentication)
         self.list_workdir_button_a.clicked.connect(self.on_click_list_workdir_button_a)
         self.save_config_button_a.clicked.connect(self.on_click_save_config_button_a)
         self.load_config_button_a.clicked.connect(self.on_click_load_config_button_a)
@@ -268,10 +273,11 @@ class UI(QDialog):
 
         # FastqZip config
         self.referencePath_lineEdit = self.Genome_tab.findChild(QLineEdit, "referencePath_lineEdit")
-        self.paired_compression_checkbox = self.Genome_tab.findChild(QLineEdit, "paired_compression_checkbox")
+        self.paired_compression_checkbox = self.Genome_tab.findChild(QCheckBox, "paired_compression_checkbox")
         self.genome_ntasks_spinbox = self.Genome_tab.findChild(QSpinBox, "genome_ntasks_spinbox")
         self.buildIndexButton = self.Genome_tab.findChild(QPushButton, "buildIndexButton")
         self.checkGenomeJobConfigButton = self.Genome_tab.findChild(QPushButton, "checkGenomeJobConfigButton")
+        self.checkGenomeJobConfigButton.clicked.connect(self.on_click_checkGenomeJobConfigButton)
         self.genome_executable_lineEdit_MA = self.Genome_tab.findChild(QLineEdit, "genome_executable_lineEdit_MA")
         self.genome_executable_lineEdit_MB = self.Genome_tab.findChild(QLineEdit, "genome_executable_lineEdit_MB")
         self.test_genome_executable_button_ma = self.Genome_tab.findChild(QPushButton, "test_genome_executable_button_ma")
@@ -290,6 +296,9 @@ class UI(QDialog):
         self.machine_b_config = None
         self.machine_a_job_config = defaultdict()
         self.machine_b_job_config = defaultdict()
+
+        self.machine_a_job_config["memory"] = "32GB"
+        self.machine_b_job_config["memory"] = "32GB"
 
         # Globus Compute Client
         self.gcc = Client(code_serialization_strategy=CombinedCode())
@@ -321,6 +330,10 @@ class UI(QDialog):
         self.dataset_dir_a_default = ""
         self.dataset_dir_b_default = ""
 
+        # default reference path
+        self.referencePathMA = ""
+        self.referencePathMB = ""
+
         # SZ_REGION properties
         self.ranges = None
         self.rects = None
@@ -334,6 +347,12 @@ class UI(QDialog):
 
         self.show()
 
+    def on_click_checkGenomeJobConfigButton(self):
+        if self.machine_a_radio_button.isChecked():
+            print("machine a job config:", self.machine_a_job_config)
+        elif self.machine_b_radio_button.isChecked():
+            print("machine b job config", self.machine_b_job_config)
+
     def on_compressor_tab_changed(self, index):
         if index == self.Genome_tab_index:
             self.preview_data_button.setEnabled(False)
@@ -344,6 +363,27 @@ class UI(QDialog):
             self.preview_data_button_ma.setEnabled(True)
             self.preview_data_button_mb.setEnabled(True)
 
+    def _check_job_status_callback(self, future):
+        status_result = future.result()
+        jobs = status_result.split("\n")
+        title = jobs[0]
+        columns = title.split()
+        all_jobs = []
+        self.current_status_textEdit.clear()
+        if len(jobs) > 1:
+            for job in jobs[1:]:
+                job_cols = job.split()
+                all_jobs.append(job_cols)
+        else:
+            self.add_message_to_current_status("Jobs have completed or terminated!")
+            return
+        table = tabulate(all_jobs, headers=columns)
+        print(table)
+        rows = table.split("\n")
+        print(rows)
+        for row in rows:
+            self.add_message_to_current_status(row + "\n", use_HTML=False)
+        
     
     def on_click_check_job_status_button(self):
         if self.machine_a_radio_button.isChecked():
@@ -353,7 +393,7 @@ class UI(QDialog):
                 return
             future = self.gce_machine_a.submit(run_command, f"squeue -u {self.machine_a_job_config['user']}")
             print("submitted check job status request for machine A!")
-            future.add_done_callback(lambda f: print("job status:", f.result()))
+            future.add_done_callback(lambda f: QTimer.singleShot(0, partial(self._check_job_status_callback, f)))
         elif self.machine_b_radio_button.isChecked():
             print("machine_b job config:", self.machine_b_job_config)
             if "user" not in self.machine_b_job_config:
@@ -361,7 +401,7 @@ class UI(QDialog):
                 return
             future = self.gce_machine_b.submit(run_command, f"squeue -u {self.machine_b_job_config['user']}")
             print("submitted check job status request for machine B!")
-            future.add_done_callback(lambda f: print("job status:", f.result()))
+            future.add_done_callback(lambda f: QTimer.singleShot(0, partial(self._check_job_status_callback, f)))
         else:
             print("Please select which machine's job status to check")
 
@@ -495,14 +535,16 @@ class UI(QDialog):
 
     def on_click_build_index(self):
         reference_path = self.referencePath_lineEdit.text()
+        threads = self.genome_ntasks_spinbox.value()
         if self.machine_a_radio_button.isChecked():
             command = CompressorCmdFactory.make_genome_build_index_cmd(self.genome_executable_lineEdit_MA.text(),
                                                                        reference_path,
-                                                                       self.genome_ntasks_spinbox.value())
+                                                                       threads)
             self.machine_a_job_config["name"] = "b-index"
             self.machine_a_job_config["time"] = "00:30:00"
             self.machine_a_job_config["nodes"] = 1
-            self.machine_a_job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
+            self.machine_a_job_config["ntasks_per_node"] = threads
+            self.machine_a_job_config["memory"] = f"{max(4 * threads, 32)}GB"
             workdir = self.workdir_lineedit_a.text()
             sbatch_file = build_sbatch_file(self.machine_a_job_config, command, work_dir=workdir)
             print(sbatch_file)
@@ -512,11 +554,12 @@ class UI(QDialog):
         elif self.machine_b_radio_button.isChecked():
             command = CompressorCmdFactory.make_genome_build_index_cmd(self.genome_executable_lineEdit_MB.text(),
                                                                        reference_path,
-                                                                       self.genome_ntasks_spinbox.value())
+                                                                       threads)
             self.machine_b_job_config["name"] = "b-index"
             self.machine_b_job_config["time"] = "00:30:00"
             self.machine_b_job_config["nodes"] = 1
-            self.machine_b_job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
+            self.machine_b_job_config["ntasks_per_node"] = threads
+            self.machine_b_job_config["memory"] = f"{max(4 * threads, 32)}GB"
             workdir = self.workdir_lineedit_b.text()
             sbatch_file = build_sbatch_file(self.machine_b_job_config, command, work_dir=workdir)
             print(sbatch_file)
@@ -632,7 +675,12 @@ class UI(QDialog):
         pass
 
     def genome_compress_data_machine_a(self):
-        pass
+        if len(self.workdir_listwidget_a.selectedItems) != 1:
+            QMessageBox.information(self, "Compress Genome", "You can only select one data file for compression")
+            return
+        workdir = self.workdir_lineedit_a.text()
+        compressed_file = self.workdir_listwidget_a.selectedItems[0]
+        self.fastqzip_data_compression(compressed_file, workdir, machine="A")
 
 
     def on_click_compress_button_a(self):
@@ -693,7 +741,12 @@ class UI(QDialog):
         pass
 
     def genome_compress_data_machine_b(self):
-        pass
+        if len(self.workdir_listwidget_b.selectedItems) != 1:
+            QMessageBox.information(self, "Compress Genome", "You can only select one data file for compression")
+            return
+        workdir = self.workdir_lineedit_b.text()
+        compressed_file = self.workdir_listwidget_b.selectedItems[0]
+        self.fastqzip_data_compression(compressed_file, workdir, machine="B")
 
     def on_click_compress_button_b(self):
         if self.compressorTabWidget.currentIndex() == 0:
@@ -756,16 +809,22 @@ class UI(QDialog):
         pass
 
     def genome_decompress_machine_a(self):
-        pass
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress Genome", "You can only select one data file for decompression")
+            return
+        workdir = self.workdir_lineedit_a.text()
+        compressed_file = self.workdir_listwidget_a.selectedItems()[0].text()
+        self.fastqzip_data_decompression(compressed_file, workdir, machine="A")
+
 
     def on_click_decompress_button_a(self):
-        if self.compressorTabWidget.currentIndex() == 0:
+        if self.compressorTabWidget.currentIndex() == self.SZ3_tab_index:
             self.sz3_decompress_machine_a()
-        elif self.compressorTabWidget.currentIndex() == 1:
+        elif self.compressorTabWidget.currentIndex() == self.SZ_REGION_tab_index:
             self.sz_region_decompress_machine_a()
-        elif self.compressorTabWidget.currentIndex() == 2:
+        elif self.compressorTabWidget.currentIndex() == self.SZ_SPLIT_tab_index:
             self.sz_split_decompress_machine_a()
-        elif self.compressorTabWidget.currentIndex() == 3:
+        elif self.compressorTabWidget.currentIndex() == self.Genome_tab_index:
             self.genome_decompress_machine_a()
 
     def sz3_decompress_machine_b(self):
@@ -816,7 +875,12 @@ class UI(QDialog):
         pass
 
     def genome_decompress_machine_b(self):
-        pass
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress Genome", "You can only select one data file for decompression")
+            return
+        workdir = self.workdir_lineedit_b.text()
+        compressed_file = self.workdir_listwidget_b.selectedItems()[0].text()
+        self.fastqzip_data_decompression(compressed_file, workdir, machine="B")
 
 
     def on_click_decompress_button_b(self):
@@ -962,20 +1026,91 @@ class UI(QDialog):
         print("compression task has been submitted!")
         future.add_done_callback(lambda f: self._compress_selected_callback(f, machine))
     
-    def sz_split_data_compression(filename: str):
+    def sz_split_data_compression(self, filename: str):
         pass
 
-    def sz_split_data_decompression(filename: str):
+    def sz_split_data_decompression(self, filename: str):
         pass
 
-    def fastqzip_data_compression(filename: str):
-        pass
+    def fastqzip_data_compression(self, filenames: List[str], data_dir:str, machine="auto"):
+        if self.paired_compression_checkbox.isChecked():
+            if len(filenames) != 2:
+                QMessageBox.information(self, "paired compression", "For paired compression, you should choose two paired fastq files!", QMessageBox.StandardButton.Close)
+                return
+            compressed_file = filenames[0] + "-paired.fastqzip"
+        else:
+            if len(filenames) != 1:
+                QMessageBox.information(self, "single compression", "For single compression, you should choose one fastq file to compress", QMessageBox.StandardButton.Close)
+                return
+            compressed_file = filenames[0] + "-single.fastqzip"
+        if (self.machine_a_radio_button.isChecked() and machine=="auto") or machine=='A':
+            executable = self.genome_executable_lineEdit_MA.text()
+            work_dir = self.workdir_lineedit_a.text()
+            gce = self.gce_machine_a
+            job_config = self.machine_a_job_config
+            machine = "A"
+        elif (self.machine_b_radio_button.isChecked() and machine=="auto") or machine=='B':
+            executable = self.genome_executable_lineEdit_MB.text()
+            work_dir = self.workdir_lineedit_b.text()
+            gce = self.gce_machine_b
+            job_config = self.machine_b_job_config
+            machine = "B"
+        else:
+            QMessageBox.information(self, "fastq compression", "Select machine before compression!", QMessageBox.StandardButton.Close)
+            return
 
-    def fastqzip_data_decompression(filename: str):
-        pass
+        filepaths = [str(Path(data_dir) / file) for file in filenames]
+        compressed_file_path = str(Path(work_dir) / compressed_file)
+        reference_path = self.referencePath_lineEdit.text()
+        threads = self.genome_ntasks_spinbox.value()
+
+        command = CompressorCmdFactory.make_genome_compress_cmd(executable, filepaths, compressed_file_path, reference_path, threads)
+        job_config["name"] = "c-fastq"
+        job_config["time"] = "01:00:00"
+        job_config["nodes"] = 1
+        job_config["memory"] = f"{max(4 * threads, 32)}GB"
+        job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
+        sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir)
+        print(sbatch_file)
+        sbatch_file_path = str(Path(work_dir) / "fastq_compress.sh")
+        future = gce.submit(save_str_to_file, sbatch_file_path, sbatch_file)
+        future.add_done_callback(lambda f: self._submit_sbatch_job(sbatch_file_path, machine))
+        
+
+    def fastqzip_data_decompression(self, filename: str, compressed_data_dir:str, machine="auto"):
+        if (self.machine_a_radio_button.isChecked() and machine=='auto') or machine=='A':
+            executable = self.genome_executable_lineEdit_MA.text()
+            work_dir = self.workdir_lineedit_a.text()
+            gce = self.gce_machine_a
+            job_config = self.machine_a_job_config
+            machine = "A"
+        elif (self.machine_b_radio_button.isChecked() and machine=='auto') or machine=='B':
+            executable = self.genome_executable_lineEdit_MB.text()
+            work_dir = self.workdir_lineedit_b.text()
+            gce = self.gce_machine_b
+            job_config = self.machine_b_job_config
+            machine = "B"
+        else:
+            QMessageBox.information(self, "Fastq Decompression", "Please select machine before decompression", QMessageBox.StandardButton.Close)
+            return
+        filepath = str(Path(compressed_data_dir) / filename)
+        reference_path = self.referencePath_lineEdit.text()
+        threads = self.genome_ntasks_spinbox.value()
+        command = CompressorCmdFactory.make_genome_decompress_cmd(executable, filepath, work_dir, reference_path, threads)
+        job_config["name"] = "d-fastq"
+        job_config["time"] = "01:00:00"
+        job_config["nodes"] = 1
+        job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
+        job_config["memory"] = f"{max(4 * threads, 32)}GB"
+        sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir)
+        print(sbatch_file)
+        sbatch_file_path = str(Path(work_dir) / "fastq_decompress.sh")
+        future = gce.submit(save_str_to_file, sbatch_file_path, sbatch_file)
+        future.add_done_callback(lambda f: self._submit_sbatch_job(sbatch_file_path, machine))
 
     def on_click_compress_selected_button(self):
         filename=self.dataset_dir_listWidget.selectedItems()[0].text()
+        data_dir = self.dataset_directory_lineEdit.text()
         if self.compressorTabWidget.currentIndex() == 0:
             self.sz3_data_compression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 1:
@@ -984,10 +1119,11 @@ class UI(QDialog):
             self.sz_split_data_compression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 3:
             filenames = [item.text() for item in self.dataset_dir_listWidget.selectedItems()]
-            self.fastqzip_data_compression(filenames=filenames)
+            self.fastqzip_data_compression(filenames=filenames, data_dir=data_dir)
         
     def on_click_decompress_selected_button(self):
         filename=self.dataset_dir_listWidget.selectedItems()[0].text()
+        data_dir = self.dataset_directory_lineEdit.text()
         if self.compressorTabWidget.currentIndex() == 0:
             self.sz3_data_decompression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 1:
@@ -995,7 +1131,7 @@ class UI(QDialog):
         elif self.compressorTabWidget.currentIndex() == 2:
             self.sz_split_data_decompression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 3:
-            self.fastqzip_data_decompression(filename=filename)
+            self.fastqzip_data_decompression(filename=filename, compressed_data_dir=data_dir)
         
     def on_click_transfer_selected_button(self):
         QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
@@ -1011,6 +1147,17 @@ class UI(QDialog):
         future = self.gce_machine_b.submit(list_cpu)
         print("submitted a lscpu to machine B")
         future.add_done_callback(lambda f: print("Machine B CPU Info:\n", f.result()))
+
+    def on_click_remove_authentication(self):
+        reply = QMessageBox.question(self, 'Confirmation', 'Are you sure you want to deauthenticate?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            token_file_path = Path(os.getcwd()) / self.globus_token_filename
+            try:
+                os.remove(token_file_path)
+            except Exception as e:
+                print("token file does not exist")
+            self.authenticate_status_label.setText("Deauthenticated!")
+            self.authenticate_status_label.setGraphicsEffect(self.color_effect_red)
 
     def on_click_authenticate_button(self):
         collections = [self.globus_id_lineedit_a.text().strip(), self.globus_id_lineedit_b.text().strip()]
@@ -1154,14 +1301,18 @@ class UI(QDialog):
     def on_toggle_machine_a(self, checked):
         if checked:
             self.dataset_directory_lineEdit.setText(self.dataset_dir_a_default)
+            self.referencePath_lineEdit.setText(self.referencePathMA)
         else:
             self.dataset_dir_a_default = self.dataset_directory_lineEdit.text()
+            self.referencePathMA = self.referencePath_lineEdit.text()
     
     def on_toggle_machine_b(self, checked):
         if checked:
             self.dataset_directory_lineEdit.setText(self.dataset_dir_b_default)
+            self.referencePath_lineEdit.setText(self.referencePathMB)
         else:
             self.dataset_dir_b_default = self.dataset_directory_lineEdit.text()
+            self.referencePathMB = self.referencePath_lineEdit.text()
 
     def on_click_load_config_button_a(self):
         machine_config_file, ok = QFileDialog.getOpenFileName(self, "Open", os.getcwd(), "YAML files (*.yaml *.yml)")
@@ -1199,6 +1350,8 @@ class UI(QDialog):
                 self.machine_a_job_config["partition"] = defaults["partition"]
             if "user" in defaults:
                 self.machine_a_job_config["user"] = defaults["user"]
+            if "reference_path" in defaults:
+                self.referencePathMA = defaults["reference_path"]
 
         if "globus_client_id" in self.machine_a_config:
             self.globus_client_id = self.machine_a_config["globus_client_id"]
@@ -1238,6 +1391,8 @@ class UI(QDialog):
                 self.machine_b_job_config["partition"] = defaults["partition"]
             if "user" in defaults:
                 self.machine_b_job_config["user"] = defaults["user"]
+            if "reference_path" in defaults:
+                self.referencePathMB = defaults["reference_path"]
 
         if "globus_client_id" in self.machine_b_config:
             self.globus_client_id = self.machine_b_config["globus_client_id"]
@@ -1281,17 +1436,23 @@ class UI(QDialog):
             html_message = f"{self.infoHTMLTag} {message} {self.endHTMLTag}"
         return html_message
     
-    def add_message_to_current_status(self, message, level: MessageLevel = MessageLevel.INFO):
+    def add_message_to_current_status(self, message, level: MessageLevel = MessageLevel.INFO, use_HTML=True):
         cursor = self.current_status_textEdit.textCursor()
-        html_message = self.get_html_message(message, level)
-        self.current_status_textEdit.insertHtml(html_message)
+        if use_HTML:
+            html_message = self.get_html_message(message, level)
+            self.current_status_textEdit.insertHtml(html_message)
+        else:
+            self.current_status_textEdit.insertPlainText(message)
         cursor.movePosition(QTextCursor.MoveOperation.End)
         self.current_status_textEdit.setTextCursor(cursor)
 
-    def add_message_to_transfer_performance(self, message, level: MessageLevel = MessageLevel.INFO):
+    def add_message_to_transfer_performance(self, message, level: MessageLevel = MessageLevel.INFO, use_HTML=True):
         cursor = self.transfer_performance_textEdit.textCursor()
-        html_message = self.get_html_message(message, level)
-        self.transfer_performance_textEdit.insertHtml(html_message)
+        if use_HTML:
+            html_message = self.get_html_message(message, level)
+            self.transfer_performance_textEdit.insertHtml(html_message)
+        else:
+            self.current_status_textEdit.insertPlainText(message)
         cursor.movePosition(QTextCursor.MoveOperation.End)
         self.transfer_performance_textEdit.setTextCursor(cursor)
 
