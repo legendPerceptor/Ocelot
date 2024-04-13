@@ -226,6 +226,7 @@ class UI(QDialog):
         self.SZ_REGION_tab = self.compressorTabWidget.findChild(QWidget, "SZ_REGION_tab")
         self.Genome_tab = self.compressorTabWidget.findChild(QWidget, "Genome_tab")
         self.SZ_SPLIT_tab = self.compressorTabWidget.findChild(QWidget, "SZ_SPLIT_tab")
+        self.compressorTabWidget.currentChanged.connect(self.on_compressor_tab_changed)
 
         # SZ3 config
         self.sz3_data_dimension_lineEdit = self.SZ3_tab.findChild(QLineEdit, "data_dimension_lineEdit")
@@ -325,7 +326,24 @@ class UI(QDialog):
         self.rects = None
         self.regions = None
 
+        # TAB indexes
+        self.SZ3_tab_index = 0
+        self.SZ_REGION_tab_index = 1
+        self.SZ_SPLIT_tab_index = 2
+        self.Genome_tab_index = 3
+
         self.show()
+
+    def on_compressor_tab_changed(self, index):
+        if index == self.Genome_tab_index:
+            self.preview_data_button.setEnabled(False)
+            self.preview_data_button_ma.setEnabled(False)
+            self.preview_data_button_mb.setEnabled(False)
+        else:
+            self.preview_data_button.setEnabled(True)
+            self.preview_data_button_ma.setEnabled(True)
+            self.preview_data_button_mb.setEnabled(True)
+
     
     def on_click_check_job_status_button(self):
         if self.machine_a_radio_button.isChecked():
