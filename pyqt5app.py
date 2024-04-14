@@ -162,7 +162,7 @@ class UI(QDialog):
         self.compress_button_a = self.findChild(QPushButton, "compress_button_a")
         self.decompress_button_a = self.findChild(QPushButton, "decompress_button_a")
         self.transfer_button_a = self.findChild(QPushButton, "transfer_button_a")
-        self.auto_transfer_button_a = self.findChild(QPushButton, "auto_transfer_button_a")
+        # self.auto_transfer_button_a = self.findChild(QPushButton, "auto_transfer_button_a")
         self.preview_data_button_ma = self.findChild(QPushButton, "preview_data_button_ma")
         self.preview_data_button_ma.clicked.connect(self.on_click_preview_data_button_ma)
 
@@ -183,7 +183,7 @@ class UI(QDialog):
         self.compress_button_b = self.findChild(QPushButton, "compress_button_b")
         self.decompress_button_b = self.findChild(QPushButton, "decompress_button_b")
         self.transfer_button_b = self.findChild(QPushButton, "transfer_button_b")
-        self.auto_transfer_button_b = self.findChild(QPushButton, "auto_transfer_button_b")
+        # self.auto_transfer_button_b = self.findChild(QPushButton, "auto_transfer_button_b")
         self.preview_data_button_mb = self.findChild(QPushButton, "preview_data_button_mb")
         self.preview_data_button_mb.clicked.connect(self.on_click_preview_data_button_mb)
 
@@ -205,7 +205,7 @@ class UI(QDialog):
         self.compress_button_a.clicked.connect(self.on_click_compress_button_a)
         self.decompress_button_a.clicked.connect(self.on_click_decompress_button_a)
         self.transfer_button_a.clicked.connect(self.on_click_transfer_button_a)
-        self.auto_transfer_button_a.clicked.connect(self.on_click_autotransfer_button_a)
+        # self.auto_transfer_button_a.clicked.connect(self.on_click_autotransfer_button_a)
 
         self.list_workdir_button_b.clicked.connect(self.on_click_list_workdir_button_b)
         self.save_config_button_b.clicked.connect(self.on_click_save_config_button_b)
@@ -213,7 +213,7 @@ class UI(QDialog):
         self.compress_button_b.clicked.connect(self.on_click_compress_button_b)
         self.decompress_button_b.clicked.connect(self.on_click_decompress_button_b)
         self.transfer_button_b.clicked.connect(self.on_click_transfer_button_b)
-        self.auto_transfer_button_b.clicked.connect(self.on_click_autotransfer_button_b)
+        # self.auto_transfer_button_b.clicked.connect(self.on_click_autotransfer_button_b)
         
         self.register_globus_compute_button_a.clicked.connect(self.on_click_register_globus_compute_a)
         self.register_globus_compute_button_b.clicked.connect(self.on_click_register_globus_compute_b)
@@ -1683,11 +1683,11 @@ class UI(QDialog):
         thread_b.finished.connect(lambda: (self.check_transfer_status(transfer_doc_b_to_a), thread_b, self.on_click_list_workdir_button_a()))
         thread_b.start()
 
-    def on_click_autotransfer_button_a(self):
-        QMessageBox.information(self, "Auto Transfer", "You clicked the Auto Transfer A button!", QMessageBox.StandardButton.Close)
+    # def on_click_autotransfer_button_a(self):
+    #     QMessageBox.information(self, "Auto Transfer", "You clicked the Auto Transfer A button!", QMessageBox.StandardButton.Close)
 
-    def on_click_autotransfer_button_b(self):
-        QMessageBox.information(self, "Auto Transfer", "You clicked the Auto Transfer B button!", QMessageBox.StandardButton.Close)
+    # def on_click_autotransfer_button_b(self):
+    #     QMessageBox.information(self, "Auto Transfer", "You clicked the Auto Transfer B button!", QMessageBox.StandardButton.Close)
 
 
 if __name__ == '__main__':

@@ -714,13 +714,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="auto_transfer_button_a">
-         <property name="text">
-          <string>Auto Transfer</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item>
@@ -855,13 +848,6 @@
         <widget class="QPushButton" name="transfer_button_b">
          <property name="text">
           <string>Transfer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="auto_transfer_button_b">
-         <property name="text">
-          <string>Auto Transfer</string>
          </property>
         </widget>
        </item>
