@@ -308,7 +308,6 @@ class UI(QDialog):
 
         # Status button
         self.checkJobStatusButton = self.findChild(QPushButton, "checkJobStatusButton")
-        self.checkTransferStatusButton = self.findChild(QPushButton, "checkTransferStatusButton")
         self.checkJobStatusButton.clicked.connect(self.on_click_check_job_status_button)
 
         # YAML config information
@@ -692,19 +691,19 @@ class UI(QDialog):
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "A"))
 
     def sz_split_compress_data_machine_a(self):
-        if len(self.workdir_listwidget_a.selectedItems) != 1:
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
             QMessageBox.information(self, "Compress Tensor", "You can only select one data file for compression")
             return
         workdir = self.workdir_lineedit_a.text()
-        compressed_file = self.workdir_listwidget_a.selectedItems[0]
+        compressed_file = self.workdir_listwidget_a.selectedItems()[0].text()
         self.sz_split_data_compression(compressed_file, workdir, machine="A")
 
     def genome_compress_data_machine_a(self):
-        if len(self.workdir_listwidget_a.selectedItems) != 1:
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
             QMessageBox.information(self, "Compress Genome", "You can only select one data file for compression")
             return
         workdir = self.workdir_lineedit_a.text()
-        compressed_file = self.workdir_listwidget_a.selectedItems[0]
+        compressed_file = self.workdir_listwidget_a.selectedItems()[0].text()
         self.fastqzip_data_compression(compressed_file, workdir, machine="A")
 
 
@@ -763,19 +762,19 @@ class UI(QDialog):
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "B"))
     
     def sz_split_compress_data_machine_b(self):
-        if len(self.workdir_listwidget_b.selectedItems) != 1:
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
             QMessageBox.information(self, "Compress Tensor", "You can only select one data file for compression")
             return
         workdir = self.workdir_lineedit_b.text()
-        compressed_file = self.workdir_listwidget_b.selectedItems[0]
+        compressed_file = self.workdir_listwidget_b.selectedItems()[0].text()
         self.sz_split_data_compression(compressed_file, workdir, machine="B")
 
     def genome_compress_data_machine_b(self):
-        if len(self.workdir_listwidget_b.selectedItems) != 1:
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
             QMessageBox.information(self, "Compress Genome", "You can only select one data file for compression")
             return
         workdir = self.workdir_lineedit_b.text()
-        compressed_file = self.workdir_listwidget_b.selectedItems[0]
+        compressed_file = self.workdir_listwidget_b.selectedItems()[0].text()
         self.fastqzip_data_compression(compressed_file, workdir, machine="B")
 
     def on_click_compress_button_b(self):
@@ -1087,11 +1086,14 @@ class UI(QDialog):
         layer_depth = self.szSplitLayerDepthSpinBox.value()
         if self.szSplitmpiModecheckBox.isChecked():
             is_mpi = True
-            threads = max(2, total_processors / 8)
+            nNodes = self.szSplitnNodeSpinBox.value() 
+            if nNodes > 1:
+                job_config["partition"] = job_config["multi_node_partition"]
+            threads = int(max(2, nNodes * ntask_per_node // 8))
         else:
             is_mpi = False
             threads = ntask_per_node
-        nNodes = self.szSplitnNodeSpinBox.value() if is_mpi else 1
+            nNodes = 1
         total_processors = nNodes * ntask_per_node
         dimension = self.sz3_data_dimension_lineEdit.text()
         parsed_dimension = dimension.split()
@@ -1114,13 +1116,13 @@ class UI(QDialog):
             executable = self.sz_split_executable_lineEdit_MA.text()
             work_dir = self.workdir_lineedit_a.text()
             gce = self.gce_machine_a
-            job_config = self.machine_a_job_config
+            job_config = self.machine_a_job_config.copy()
             machine = "A"
         elif (self.machine_b_radio_button.isChecked() and machine=="auto") or machine=='B':
             executable = self.sz_split_executable_lineEdit_MB.text()
             work_dir = self.workdir_lineedit_b.text()
             gce = self.gce_machine_b
-            job_config = self.machine_b_job_config
+            job_config = self.machine_b_job_config.copy()
             machine = "B"
         else:
             QMessageBox.information(self, "szsplit decompression", "Select machine before compression!", QMessageBox.StandardButton.Close)
@@ -1129,11 +1131,14 @@ class UI(QDialog):
         layer_depth = self.szSplitLayerDepthSpinBox.value()
         if self.szSplitmpiModecheckBox.isChecked():
             is_mpi = True
-            threads = max(2, total_processors / 8)
+            nNodes = int(self.szSplitnNodeSpinBox.value())
+            if nNodes > 1:
+                job_config["partition"] =  job_config["multi_node_partition"]
+            threads = int(max(2, nNodes * ntask_per_node // 8))
         else:
             is_mpi = False
+            nNodes = 1
             threads = ntask_per_node
-        nNodes = self.szSplitnNodeSpinBox.value() if is_mpi else 1
         total_processors = nNodes * ntask_per_node
         dimension = self.sz3_data_dimension_lineEdit.text()
         parsed_dimension = dimension.split()
@@ -1258,7 +1263,43 @@ class UI(QDialog):
     def on_click_transfer_selected_button(self):
         # QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
         filenames = self.dataset_dir_listWidget.selectedItems()
-        print(filenames)
+        data_dir = self.dataset_directory_lineEdit.text()
+        if self.tc is None:
+            print("Globus Transfer has not been authenticated!")
+            QMessageBox.warning(self, "Authentication Error", "You need to authenticate Globus Transfer first!", QMessageBox.StandardButton.Cancel)
+            return
+
+        files_to_transfer = [Path(data_dir) / file.text() for file in filenames]
+        if self.machine_a_radio_button.isChecked():
+            source_endpoint = self.globus_id_lineedit_a.text()
+            detination_endpoint = self.globus_id_lineedit_b.text()
+            dest_dir = self.workdir_lineedit_b.text()
+        elif self.machine_b_radio_button.isChecked():
+            source_endpoint = self.globus_id_lineedit_b.text()
+            detination_endpoint = self.globus_id_lineedit_a.text()
+            dest_dir = self.workdir_lineedit_a.text()
+        else:
+            QMessageBox.information(self, "Transfer Selected", "Choose which machine to transfer from!", QMessageBox.StandardButton.Close)
+            return
+
+        task_data = globus_sdk.TransferData(
+            source_endpoint=source_endpoint, destination_endpoint=detination_endpoint
+        )
+        
+        for file in files_to_transfer:
+            task_data.add_item(
+                str(file),  # source
+                str(Path(dest_dir) / file.name),  # dest
+            )
+            print("transfering ", str(file), " to ", str(Path(dest_dir) / file.name))
+        # submit the task
+        transfer_doc = self.tc.submit_transfer(task_data)
+        self.transfer_performance_textEdit.clear()
+        QMessageBox.information(self, "Transfer", f"The transfer task has been submitted", QMessageBox.StandardButton.Close)
+
+        thread_b = TransferThread(self.tc, transfer_doc)
+        thread_b.finished.connect(lambda: (self.check_transfer_status(transfer_doc), thread_b, self.on_click_list_workdir_button_a()))
+        thread_b.start()
 
     def on_click_register_globus_compute_a(self):
         self.gce_machine_a = Executor(endpoint_id=self.funcx_id_lineedit_a.text().strip(), funcx_client=self.gcc)
@@ -1478,6 +1519,10 @@ class UI(QDialog):
                 self.machine_a_job_config["user"] = defaults["user"]
             if "reference_path" in defaults:
                 self.referencePathMA = defaults["reference_path"]
+            if "multi_node_partition" in defaults:
+                self.machine_a_job_config["multi_node_partition"] = defaults["multi_node_partition"]
+            else:
+                self.machine_a_job_config["multi_node_partition"] = defaults["partition"]
 
         if "globus_client_id" in self.machine_a_config:
             self.globus_client_id = self.machine_a_config["globus_client_id"]
@@ -1521,6 +1566,10 @@ class UI(QDialog):
                 self.machine_b_job_config["user"] = defaults["user"]
             if "reference_path" in defaults:
                 self.referencePathMB = defaults["reference_path"]
+            if "multi_node_partition" in defaults:
+                self.machine_b_job_config["multi_node_partition"] = defaults["multi_node_partition"]
+            else:
+                self.machine_b_job_config["multi_node_partition"] = defaults["partition"]
 
         if "globus_client_id" in self.machine_b_config:
             self.globus_client_id = self.machine_b_config["globus_client_id"]

@@ -7,6 +7,7 @@ defaults:
   job_account: yliu4
   user: yliu4
   partition: shared
+  multi_node_partition: parallel
   dataset_dir: /home/yliu4/data_yliu4/NYX_512x512x512
   sz3_exe: /home/yliu4/SZ3/build/tools/sz3/sz3
   sz_split_exe: /home/yliu4/SZ3/build/tools/sz3-split/sz3_split

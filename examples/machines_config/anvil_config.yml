@@ -7,6 +7,7 @@ defaults:
   job_account: cis220161
   user: x-yliu4
   partition: shared
+  multi_node_partition: wholenode
   dataset_dir: /anvil/projects/x-cis220161/datasets/Miranda #/anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600
   sz3_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3/build/tools/sz3/sz3
   sz_region_exe: /home/x-yliu4/sz3-yuanjian/SZ3/build/test/sz_region

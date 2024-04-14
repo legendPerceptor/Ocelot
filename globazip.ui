@@ -934,13 +934,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="checkTransferStatusButton">
-        <property name="text">
-         <string>Check Transfer Status</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
