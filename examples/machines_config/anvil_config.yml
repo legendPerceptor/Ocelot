@@ -2,7 +2,7 @@ name: Anvil
 globus_compute_id: e05f127c-8a1c-4329-a87f-5ce143a88e35
 globus_transfer_id: c42f0096-2d87-42f9-8e6a-edd08f2e1834
 globus_client_id: 1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2
-work_dir: /home/x-yliu4/playground
+work_dir: /anvil/projects/x-cis220161/temp
 defaults:
   job_account: cis220161
   user: x-yliu4
@@ -10,5 +10,5 @@ defaults:
   dataset_dir: /anvil/projects/x-cis220161/datasets/Miranda #/anvil/projects/x-cis220161/datasets/CESM-ATM/SDRBENCH-CESM-ATM-cleared-1800x3600
   sz3_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3/build/tools/sz3/sz3
   sz_region_exe: /home/x-yliu4/sz3-yuanjian/SZ3/build/test/sz_region
-  sz3_split_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3-Split/build/tools/sz3-split/sz3_split
+  sz_split_exe: /home/x-yliu4/sz3-yuanjian/official_sz3/SZ3-Split/build/tools/sz3-split/sz3_split
   

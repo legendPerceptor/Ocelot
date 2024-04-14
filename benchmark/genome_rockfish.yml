@@ -1,234 +1,58 @@
 global:
-  output_folder: "/mnt/general-nas/tests/09-12"
+  output_folder: "/home/yliu4/data_yliu4/temp/"  # Where the large files (compressed and decompressed files) will be put
+  metrics_output_folder: "/home/yliu4/tests/"    # Where the small files (metrics files in csv format and log files in text format) will be put
 
 datasets:
-  - name: "E100024251_small"
-    fileNames: ["E100024251_1.fq", "E100024251_2.fq"]
-    url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/"
-    folder: "/mnt/general-nas/fastq/"
-    reference: "NA12878"
-  - name: "E100024251_L01_104_unzipped"
-    fileNames: ["E100024251_L01_104-fastqzip-dominant-bitmap-t64.fastqzip_R1.fastq", "E100024251_L01_104-fastqzip-dominant-bitmap-t64.fastqzip_R2.fastq"]
-    url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/"
-    folder: "/mnt/PL3Essd5T/fastq"
-    reference: "NA12878"
-
-  # - name: "E100024251_L01_104"
-  #   fileNames: ["E100024251_L01_104_1.fq.gz", "E100024251_L01_104_2.fq.gz"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/"
-  #   folder: "/mnt/general-nas/fastq/"
-  #   reference: "NA12878"
-  # - name: "MGIEasyRNA4"
-  #   fileNames: ["MGIEasyRNA4_1.fq.gz", "MGIEasyRNA4_2.fq.gz"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data1/CNP0000288/CNS0040524/CNX0048124/CNR0066419/"
-  #   folder: "/mnt/general-nas/fastq/"
-  #   reference: "NA12878"
-  # - name: "S200032449_L01"
-  #   fileNames: ["S200032449_L01_read_1.fq.gz", "S200032449_L01_read_2.fq.gz"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003664/CNS0632818/CNX0547623/CNR0640340/"
-  #   folder: "/mnt/general-nas/fastq/"
-  #   reference: "NA12878"
-  # - name: "BGISEQ500_PCRfree_NA12878_CL100076243_L01"
+  # - name: "BGISEQ500_PCRfree"
   #   fileNames: ["BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_1.fq.gz", "BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_2.fq.gz"]
-  #   url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/"
-  #   folder: "/mnt/general-nas/fastq/"
+  #   url: ["https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_1.fq.gz", "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/BGISEQ500_PCRfree_NA12878_CL100076243_L01_read_2.fq.gz"]
+  #   folder: "/home/yliu4/data_yliu4/genome-data"
   #   reference: "NA12878"
-  # - name: "E100030471QC960_L01_41"
-  #   fileNames: ["E100030471QC960_L01_41_1.fq.gz", "E100030471QC960_L01_41_2.fq.gz"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data2/CNP0002679/CNS0516004/CNX0414265/CNR0497792/"
-  #   folder: "/mnt/general-nas/fastq/"
-  #   reference: "NA12878"
-  
-  # - name: "E100024251_L01_104-4bin-unzip"
-  #   fileNames: ["E100024251_L01_104-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "E100024251_L01_104-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/"
-  #   folder: "/mnt/general-nas/tests/unzipped-4bins"
-  #   reference: "NA12878"
-  # - name: "MGIEasyRNA4-4bin-unzip"
-  #   fileNames: ["MGIEasyRNA4-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "MGIEasyRNA4-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data1/CNP0000288/CNS0040524/CNX0048124/CNR0066419/"
-  #   folder: "/mnt/general-nas/tests/unzipped-4bins"
-  #   reference: "NA12878"
-  # - name: "S200032449_L01-4bin-unzip"
-  #   fileNames: ["S200032449_L01-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "S200032449_L01-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003664/CNS0632818/CNX0547623/CNR0640340/"
-  #   folder: "/mnt/general-nas/tests/unzipped-4bins"
-  #   reference: "NA12878"
-  # - name: "BGISEQ500_PCRfree_NA12878_CL100076243_L01-4bin-unzip"
-  #   fileNames: ["BGISEQ500_PCRfree_NA12878_CL100076243_L01-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "BGISEQ500_PCRfree_NA12878_CL100076243_L01-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/"
-  #   folder: "/mnt/general-nas/tests/unzipped-4bins"
-  #   reference: "NA12878"
-  # - name: "E100030471QC960_L01_41-4bin-unzip"
-  #   fileNames: ["E100030471QC960_L01_41-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "E100030471QC960_L01_41-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data2/CNP0002679/CNS0516004/CNX0414265/CNR0497792/"
-  #   folder: "/mnt/general-nas/tests/unzipped-4bins"
-  #   reference: "NA12878"
+  - name: "E100024251_L01_104"
+    fileNames: ["E100024251_L01_104_1.fq.gz", "E100024251_L01_104_2.fq.gz"]
+    url: ["ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/E100024251_L01_104_1.fq.gz", "ftp://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/E100024251_L01_104_2.fq.gz"]
+    folder: "/home/yliu4/data_yliu4/genome-data"
+    reference: "NA12878"
 
-
-  # - name: "E100024251_L01_104-qual-1-nosort"
-  #   fileNames: ["E100024251_L01_104-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "E100024251_L01_104-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003660/CNS0632817/CNX0547764/CNR0640481/"
-  #   folder: "/mnt/general-nas/nosort-fastq-qualbin1"
-  #   reference: "NA12878"
-  # - name: "MGIEasyRNA4-qual-1-nosort"
-  #   fileNames: ["MGIEasyRNA4-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "MGIEasyRNA4-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data1/CNP0000288/CNS0040524/CNX0048124/CNR0066419/"
-  #   folder: "/mnt/general-nas/nosort-fastq-qualbin1"
-  #   reference: "NA12878"
-  # - name: "S200032449_L01-qual-1-nosort"
-  #   fileNames: ["S200032449_L01-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "S200032449_L01-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data5/CNP0003664/CNS0632818/CNX0547623/CNR0640340/"
-  #   folder: "/mnt/general-nas/nosort-fastq-qualbin1"
-  #   reference: "NA12878"
-  # - name: "BGISEQ500_PCRfree_NA12878_CL100076243_L01-qual-1-nosort"
-  #   fileNames: ["BGISEQ500_PCRfree_NA12878_CL100076243_L01-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "BGISEQ500_PCRfree_NA12878_CL100076243_L01-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/"
-  #   folder: "/mnt/general-nas/nosort-fastq-qualbin1"
-  #   reference: "NA12878"
-  # - name: "E100030471QC960_L01_41-qual-1-nosort"
-  #   fileNames: ["E100030471QC960_L01_41-fastqzip-dominant-bitmap-t16.fastqzip_R1.fastq", "E100030471QC960_L01_41-fastqzip-dominant-bitmap-t16.fastqzip_R2.fastq"]
-  #   url: "https://ftp.cngb.org/pub/CNSA/data2/CNP0002679/CNS0516004/CNX0414265/CNR0497792/"
-  #   folder: "/mnt/general-nas/nosort-fastq-qualbin1"
-  #   reference: "NA12878"
-
-    
 references:
   - name: "NA12878"
-    location: "/mnt/general-nas/fasta/Homo_sapiens_assembly38.fasta"
-    url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/NIST_NA12878_HG001_HiSeq_300x/"
+    location: "/home/yliu4/data_yliu4/genome-data/reference/Homo_sapiens_assembly38.fasta"
+    fasta_url: https://storage.googleapis.com/genomics-public-data/resources/broad/hg38/v0/Homo_sapiens_assembly38.fasta
+    fai_url: https://storage.googleapis.com/genomics-public-data/resources/broad/hg38/v0/Homo_sapiens_assembly38.fasta.fai
 
-compressors: # --output is generated in the Python program
-  # - name: "fastqzip-huffman"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "20",
-  #       "--line_number", "100000", "--use_huffman", "auto"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "20", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t2"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "2",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "2", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t4"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "4",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "4", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t8"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "8",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "8", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t12"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "12",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "12", "--gzip"]
-  # - name: "genozip-t16"
-  #   ext: ".genozip"
-  #   executable: "/mnt/general-nas/compressors/genozip-linux-x86_64/" # genozip use multiple executable files
-  #   compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "16", "-w"]
-  #   decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "16"]
+compressors:
   - name: "fastqzip-dominant-bitmap-t16"
     ext: ".fastqzip"
-    executable: "/mnt/general-nas/compressors/fastqZipCpp"
+    executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
     compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
         "--line_number", "100000"]
     decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16"]
-  # - name: "fastqzip-huffman-zstd-t16"
+  - name: "genozip-t16"
+    ext: ".genozip"
+    executable: "/home/yliu4/genome/genozip/genozip-linux-x86_64/" # genozip use multiple executable files
+    compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "16"]
+    decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "16"]
+  - name: "fastqzip-dominant-bitmap-t8"
+    ext: ".fastqzip"
+    executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
+    compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "8",
+        "--line_number", "100000"]
+    decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "8"]
+  - name: "fastqzip-dominant-bitmap-t4"
+    ext: ".fastqzip"
+    executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
+    compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "4",
+        "--line_number", "100000"]
+    decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "4"]
+  - name: "fastqzip-dominant-bitmap-t2"
+    ext: ".fastqzip"
+    executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
+    compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "2",
+        "--line_number", "100000"]
+    decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "2"]
+  # - name: "fastqzip-dominant-bitmap-t1"
   #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
-  #       "--line_number", "100000", "--use_huffman", "zstd"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16", "--gzip"]
-
-  # - name: "fastqzip-dominant-bitmap-t16"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
+  #   executable: "/home/yliu4/genome/GlobaGenomeCompress/build/GlobaGenomeCompress"
+  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "1",
   #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16"]
-  # - name: "fastqzip-huffman-none-t16"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
-  #       "--line_number", "100000", "--use_huffman", "none"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16", "--gzip"]
-  # - name: "fastqzip-huffman-bsc-t16"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "16",
-  #       "--line_number", "100000", "--use_huffman", "bsc"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "16", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t20"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "20",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "20", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t112"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "112",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "112", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t128"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/128-large-compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "128",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "128", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t8"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/128-large-compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "8",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "8", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t144"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "144",
-  #       "--line_number", "100000"]
-  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "144", "--gzip"]
-  # - name: "fastqzip-dominant-bitmap-t160"
-  #   ext: ".fastqzip"
-  #   executable: "/mnt/general-nas/compressors/fastqZipCpp"
-  #   compress_params: ["compress", "-f", "$fileNames", "-r", "$reference", "-t", "160",
-  #       "--line_number", "100000"]
-  #  decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "160", "--gzip"]
-
-  # - name: "genozip-t16"
-  #   ext: ".genozip"
-  #   executable: "/mnt/general-nas/compressors/genozip-linux-x86_64/" # genozip use multiple executable files
-  #   compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "16", "--optimize-DESC"]
-  #   decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "16"]
-  # - name: "genozip-t32"
-  #   ext: ".genozip"
-  #   executable: "/mnt/general-nas/compressors/genozip-linux-x86_64/" # genozip use multiple executable files
-  #   compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "32", "--optimize-DESC"]
-  #   decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "32"]
-  # - name: "genozip-t64"
-  #   ext: ".genozip"
-  #   executable: "/mnt/general-nas/compressors/genozip-linux-x86_64/" # genozip use multiple executable files
-  #   compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "64", "--optimize-DESC"]
-  #   decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "64"]
-  # - name: "genozip-t128"
-  #   ext: ".genozip"
-  #   executable: "/mnt/general-nas/compressors/genozip-linux-x86_64/" # genozip use multiple executable files
-  #   compress_params: ["--reference", "$reference", "$fileNames", "--force", "--threads", "128", "--optimize-DESC"]
-  #   decompress_params: ["--reference", "$reference", "$compressedFileName", "--force", "--threads", "128"]
-  # - name: "FQSqueezer"
-  #   ext: ".fqsqueezer"
-  #   executable: "/mnt/general-nas/compressors/fqsqueezer/fqs-1.1"
-  #   compress_params: ["e", "-s", "-t", "16", "-out", "$compressedFileName", "-om", "s", "$fileNames"]
-  #   decompress_params: ["d"]
-  # - name: "GTX"
-  #   ext: ".gtx"
-  #   executable: "/home/yingbian/.config/GTX.Zip/gtz"
-  #   compress_params: ["$fileNames", "-r", "$reference"]
-  #   decompress_params: ["-d", "$compressedFile", "-r", "$reference"]
+  #   decompress_params: ["decompress", "-r", "$reference", "-f", "$compressedFileName", "-t", "1"]

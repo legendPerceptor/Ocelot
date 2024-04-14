@@ -9,7 +9,7 @@ defaults:
   partition: shared
   dataset_dir: /home/yliu4/data_yliu4/NYX_512x512x512
   sz3_exe: /home/yliu4/SZ3/build/tools/sz3/sz3
-  sz3_split_exe: /home/yliu4/SZ3/build/tools/sz3-split/sz3_split
+  sz_split_exe: /home/yliu4/SZ3/build/tools/sz3-split/sz3_split
   sz_region_exe: /home/yliu4/region/SZ3/build/test/sz_region
   fastqzip_exe: /home/yliu4/genome/ad/fastqZip/build/fastqZip
   reference_path: /home/yliu4/data_yliu4/genome-data/reference/Homo_sapiens_assembly38.fasta

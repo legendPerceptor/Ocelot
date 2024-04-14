@@ -120,6 +120,26 @@ class CompressorCmdFactory():
         command = [executable, "index", "-f", reference_path, "-t", str(threads)]
         command_str = " ".join(command)
         return command_str
+    
+    @staticmethod
+    def make_szsplit_compress_cmd(executable: str, dataFilename, compressedFilename, dimension: List, eb: float, depth:int, threads: int, is_mpi:bool, total_processors:int=1):
+        dimension_str = " ".join(dimension)
+        command = [executable, "compress", "-i", dataFilename, "-o", compressedFilename,
+                   "-d", dimension_str, "-e", eb, "--depth", str(depth), "--threads", str(threads), "--mode layer"]
+        if is_mpi:
+            command = ["mpirun -n", str(total_processors)] + command + ["--mpi"]
+        command_str = " ".join(command)
+        return command_str
+    
+    @staticmethod
+    def make_szsplit_decompress_cmd(executable: str, compressedFilename, decompressedFilename, dimension: List, eb: float, depth: int, threads: int, is_mpi:bool, total_processors:int=1):
+        dimension_str = " ".join(dimension)
+        command = [executable, "decompress", "-i", compressedFilename, "-o", decompressedFilename,
+                   "-d", dimension_str, "-e", eb, "--depth", str(depth), "--threads", str(threads), "--mode layer"]
+        if is_mpi:
+            command = ["mpirun -n", str(total_processors)] + command + ["--mpi"]
+        command_str = " ".join(command)
+        return command_str
 
 class UI(QDialog):
     def __init__(self):
@@ -672,7 +692,12 @@ class UI(QDialog):
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "A"))
 
     def sz_split_compress_data_machine_a(self):
-        pass
+        if len(self.workdir_listwidget_a.selectedItems) != 1:
+            QMessageBox.information(self, "Compress Tensor", "You can only select one data file for compression")
+            return
+        workdir = self.workdir_lineedit_a.text()
+        compressed_file = self.workdir_listwidget_a.selectedItems[0]
+        self.sz_split_data_compression(compressed_file, workdir, machine="A")
 
     def genome_compress_data_machine_a(self):
         if len(self.workdir_listwidget_a.selectedItems) != 1:
@@ -738,7 +763,12 @@ class UI(QDialog):
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "B"))
     
     def sz_split_compress_data_machine_b(self):
-        pass
+        if len(self.workdir_listwidget_b.selectedItems) != 1:
+            QMessageBox.information(self, "Compress Tensor", "You can only select one data file for compression")
+            return
+        workdir = self.workdir_lineedit_b.text()
+        compressed_file = self.workdir_listwidget_b.selectedItems[0]
+        self.sz_split_data_compression(compressed_file, workdir, machine="B")
 
     def genome_compress_data_machine_b(self):
         if len(self.workdir_listwidget_b.selectedItems) != 1:
@@ -803,10 +833,13 @@ class UI(QDialog):
         print("compression task has been submitted!")
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "A"))
     
-
-
     def sz_split_decompress_machine_a(self):
-        pass
+        if len(self.workdir_listwidget_a.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress Tensor", "You can only select one data file for decompression")
+            return
+        workdir = self.workdir_lineedit_a.text()
+        compressed_file = self.workdir_listwidget_a.selectedItems()[0].text()
+        self.sz_split_data_decompression(compressed_file, workdir, machine="A")
 
     def genome_decompress_machine_a(self):
         if len(self.workdir_listwidget_a.selectedItems()) != 1:
@@ -872,7 +905,12 @@ class UI(QDialog):
         future.add_done_callback(lambda f: self._compress_selected_callback(f, "B"))
 
     def sz_split_decompress_machine_b(self):
-        pass
+        if len(self.workdir_listwidget_b.selectedItems()) != 1:
+            QMessageBox.information(self, "Decompress Tensor", "You can only select one data file for decompression")
+            return
+        workdir = self.workdir_lineedit_b.text()
+        compressed_file = self.workdir_listwidget_b.selectedItems()[0].text()
+        self.sz_split_data_decompression(compressed_file, workdir, machine="B")
 
     def genome_decompress_machine_b(self):
         if len(self.workdir_listwidget_b.selectedItems()) != 1:
@@ -1026,11 +1064,95 @@ class UI(QDialog):
         print("compression task has been submitted!")
         future.add_done_callback(lambda f: self._compress_selected_callback(f, machine))
     
-    def sz_split_data_compression(self, filename: str):
-        pass
+    def sz_split_data_compression(self, filename: str, data_dir: str, machine="auto"):
+        data_file_path = str(Path(data_dir) / filename)
+        if (self.machine_a_radio_button.isChecked() and machine=="auto") or machine=='A':
+            executable = self.sz_split_executable_lineEdit_MA.text()
+            work_dir = self.workdir_lineedit_a.text()
+            gce = self.gce_machine_a
+            job_config = self.machine_a_job_config
+            machine = "A"
+        elif (self.machine_b_radio_button.isChecked() and machine=="auto") or machine=='B':
+            executable = self.sz_split_executable_lineEdit_MB.text()
+            work_dir = self.workdir_lineedit_b.text()
+            gce = self.gce_machine_b
+            job_config = self.machine_b_job_config
+            machine = "B"
+        else:
+            QMessageBox.information(self, "szsplit compression", "Select machine before compression!", QMessageBox.StandardButton.Close)
+            return
+        compressed_file = filename + ".szsplit"
+        compressed_file_path = str(Path(work_dir) / compressed_file)
+        ntask_per_node = self.szSplitnTaskSpinBox.value()
+        layer_depth = self.szSplitLayerDepthSpinBox.value()
+        if self.szSplitmpiModecheckBox.isChecked():
+            is_mpi = True
+            threads = max(2, total_processors / 8)
+        else:
+            is_mpi = False
+            threads = ntask_per_node
+        nNodes = self.szSplitnNodeSpinBox.value() if is_mpi else 1
+        total_processors = nNodes * ntask_per_node
+        dimension = self.sz3_data_dimension_lineEdit.text()
+        parsed_dimension = dimension.split()
+        eb = self.sz3_error_bound_lineEdit.text()
+        command = CompressorCmdFactory.make_szsplit_compress_cmd(executable, data_file_path, compressed_file_path,
+                                                                 parsed_dimension, eb, layer_depth, threads, is_mpi, total_processors)
+        job_config["name"] = "c-split"
+        job_config["time"] = "01:00:00"
+        job_config["nodes"] = nNodes
+        job_config["memory"] = f"{max(4 * ntask_per_node, 32)}GB"
+        job_config["ntasks_per_node"] = ntask_per_node
+        sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir, module_load="module load openmpi")
+        print(sbatch_file)
+        sbatch_file_path = str(Path(work_dir) / "szsplit_compress.sh")
+        future = gce.submit(save_str_to_file, sbatch_file_path, sbatch_file)
+        future.add_done_callback(lambda f: self._submit_sbatch_job(sbatch_file_path, machine))
 
-    def sz_split_data_decompression(self, filename: str):
-        pass
+    def sz_split_data_decompression(self, filename: str, compressed_data_dir:str, machine="auto"):
+        if (self.machine_a_radio_button.isChecked() and machine=="auto") or machine=='A':
+            executable = self.sz_split_executable_lineEdit_MA.text()
+            work_dir = self.workdir_lineedit_a.text()
+            gce = self.gce_machine_a
+            job_config = self.machine_a_job_config
+            machine = "A"
+        elif (self.machine_b_radio_button.isChecked() and machine=="auto") or machine=='B':
+            executable = self.sz_split_executable_lineEdit_MB.text()
+            work_dir = self.workdir_lineedit_b.text()
+            gce = self.gce_machine_b
+            job_config = self.machine_b_job_config
+            machine = "B"
+        else:
+            QMessageBox.information(self, "szsplit decompression", "Select machine before compression!", QMessageBox.StandardButton.Close)
+            return
+        ntask_per_node = self.szSplitnTaskSpinBox.value()
+        layer_depth = self.szSplitLayerDepthSpinBox.value()
+        if self.szSplitmpiModecheckBox.isChecked():
+            is_mpi = True
+            threads = max(2, total_processors / 8)
+        else:
+            is_mpi = False
+            threads = ntask_per_node
+        nNodes = self.szSplitnNodeSpinBox.value() if is_mpi else 1
+        total_processors = nNodes * ntask_per_node
+        dimension = self.sz3_data_dimension_lineEdit.text()
+        parsed_dimension = dimension.split()
+        eb = self.sz3_error_bound_lineEdit.text()
+        compressed_file_path = str(Path(compressed_data_dir) / filename)
+        decompressed_file_path = str(Path(work_dir) / (filename + ".dp"))
+        command = CompressorCmdFactory.make_szsplit_decompress_cmd(executable, compressed_file_path, decompressed_file_path,
+                                                                   parsed_dimension, eb, layer_depth, threads, is_mpi, total_processors)
+        job_config["name"] = "d-split"
+        job_config["time"] = "01:00:00"
+        job_config["nodes"] = nNodes
+        job_config["memory"] = f"{max(4 * ntask_per_node, 32)}GB"
+        job_config["ntasks_per_node"] = ntask_per_node
+        sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir, module_load="module load openmpi")
+        print(sbatch_file)
+        sbatch_file_path = str(Path(work_dir) / "szsplit_decompress.sh")
+        future = gce.submit(save_str_to_file, sbatch_file_path, sbatch_file)
+        future.add_done_callback(lambda f: self._submit_sbatch_job(sbatch_file_path, machine))
+
 
     def fastqzip_data_compression(self, filenames: List[str], data_dir:str, machine="auto"):
         if self.paired_compression_checkbox.isChecked():
@@ -1116,7 +1238,7 @@ class UI(QDialog):
         elif self.compressorTabWidget.currentIndex() == 1:
             self.sz_region_data_compression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 2:
-            self.sz_split_data_compression(filename=filename)
+            self.sz_split_data_compression(filename=filename, data_dir=data_dir)
         elif self.compressorTabWidget.currentIndex() == 3:
             filenames = [item.text() for item in self.dataset_dir_listWidget.selectedItems()]
             self.fastqzip_data_compression(filenames=filenames, data_dir=data_dir)
@@ -1129,12 +1251,14 @@ class UI(QDialog):
         elif self.compressorTabWidget.currentIndex() == 1:
             self.sz_region_data_decompression(filename=filename)
         elif self.compressorTabWidget.currentIndex() == 2:
-            self.sz_split_data_decompression(filename=filename)
+            self.sz_split_data_decompression(filename=filename, compressed_data_dir=data_dir)
         elif self.compressorTabWidget.currentIndex() == 3:
             self.fastqzip_data_decompression(filename=filename, compressed_data_dir=data_dir)
         
     def on_click_transfer_selected_button(self):
-        QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
+        # QMessageBox.information(self, "Transfer Selected", "You clicked the transfer selected button", QMessageBox.StandardButton.Close)
+        filenames = self.dataset_dir_listWidget.selectedItems()
+        print(filenames)
 
     def on_click_register_globus_compute_a(self):
         self.gce_machine_a = Executor(endpoint_id=self.funcx_id_lineedit_a.text().strip(), funcx_client=self.gcc)
@@ -1344,6 +1468,8 @@ class UI(QDialog):
                 self.sz_region_executable_lineEdit_MA.setText(defaults["sz_region_exe"])
             if "fastqzip_exe" in defaults:
                 self.genome_executable_lineEdit_MA.setText(defaults["fastqzip_exe"])
+            if "sz_split_exe" in defaults:
+                self.sz_split_executable_lineEdit_MA.setText(defaults["sz_split_exe"])
             if "job_account" in defaults:
                 self.machine_a_job_config["account"] = defaults["job_account"]
             if "partition" in defaults:
@@ -1385,6 +1511,8 @@ class UI(QDialog):
                 self.sz_region_executable_lineEdit_MB.setText(defaults["sz_region_exe"])
             if "fastqzip_exe" in defaults:
                 self.genome_executable_lineEdit_MB.setText(defaults["fastqzip_exe"])
+            if "sz_split_exe" in defaults:
+                self.sz_split_executable_lineEdit_MB.setText(defaults["sz_split_exe"])
             if "job_account" in defaults:
                 self.machine_b_job_config["account"] = defaults["job_account"]
             if "partition" in defaults:

@@ -254,7 +254,7 @@ class ImageLabel(QLabel):
             painter.drawText(x - 4, self.height() - 15, label)
 
 class PreviewDialog(QDialog):
-    def __init__(self, window_title = 'Image Loader with Rectangle Draw and Color Bar',
+    def __init__(self, window_title = 'Tensor Data Preivew',
                  gce = None, file_path = "./data/CLDHGH_1_1800_3600.dat", dataDimension = "1800 3600",
                  default_eb = 0.1):
         super().__init__()
