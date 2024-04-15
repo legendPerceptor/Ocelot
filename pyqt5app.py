@@ -563,7 +563,7 @@ class UI(QDialog):
             self.machine_a_job_config["time"] = "00:30:00"
             self.machine_a_job_config["nodes"] = 1
             self.machine_a_job_config["ntasks_per_node"] = threads
-            self.machine_a_job_config["memory"] = f"{max(2 * threads, 32)}GB"
+            self.machine_a_job_config["memory"] = f"{max(4 * threads, 32)}GB"
             workdir = self.workdir_lineedit_a.text()
             sbatch_file = build_sbatch_file(self.machine_a_job_config, command, work_dir=workdir)
             print(sbatch_file)
@@ -578,7 +578,7 @@ class UI(QDialog):
             self.machine_b_job_config["time"] = "00:30:00"
             self.machine_b_job_config["nodes"] = 1
             self.machine_b_job_config["ntasks_per_node"] = threads
-            self.machine_b_job_config["memory"] = f"{max(2 * threads, 32)}GB"
+            self.machine_b_job_config["memory"] = f"{max(4 * threads, 32)}GB"
             workdir = self.workdir_lineedit_b.text()
             sbatch_file = build_sbatch_file(self.machine_b_job_config, command, work_dir=workdir)
             print(sbatch_file)
@@ -1103,7 +1103,7 @@ class UI(QDialog):
         job_config["name"] = "c-split"
         job_config["time"] = "01:00:00"
         job_config["nodes"] = nNodes
-        job_config["memory"] = f"{max(2 * ntask_per_node, 32)}GB"
+        job_config["memory"] = f"{max(4 * ntask_per_node, 32)}GB"
         job_config["ntasks_per_node"] = ntask_per_node
         sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir, module_load="module load openmpi")
         print(sbatch_file)
@@ -1150,7 +1150,7 @@ class UI(QDialog):
         job_config["name"] = "d-split"
         job_config["time"] = "01:00:00"
         job_config["nodes"] = nNodes
-        job_config["memory"] = f"{max(2 * ntask_per_node, 32)}GB"
+        job_config["memory"] = f"{max(4 * ntask_per_node, 32)}GB"
         job_config["ntasks_per_node"] = ntask_per_node
         sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir, module_load="module load openmpi")
         print(sbatch_file)
@@ -1195,7 +1195,7 @@ class UI(QDialog):
         job_config["name"] = "c-fastq"
         job_config["time"] = "01:00:00"
         job_config["nodes"] = 1
-        job_config["memory"] = f"{max(2 * threads, 32)}GB"
+        job_config["memory"] = f"{max(4 * threads, 32)}GB"
         job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
         sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir)
         print(sbatch_file)
@@ -1228,7 +1228,7 @@ class UI(QDialog):
         job_config["time"] = "01:00:00"
         job_config["nodes"] = 1
         job_config["ntasks_per_node"] = self.genome_ntasks_spinbox.value()
-        job_config["memory"] = f"{max(2 * threads, 32)}GB"
+        job_config["memory"] = f"{max(4 * threads, 32)}GB"
         sbatch_file = build_sbatch_file(job_config, command, work_dir=work_dir)
         print(sbatch_file)
         sbatch_file_path = str(Path(work_dir) / "fastq_decompress.sh")
