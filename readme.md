@@ -4,7 +4,7 @@ GlobaZip is a compression and transfer framework that orchestrates tasks on remo
 
 ## New Features
 
-- Support compression of extremely large single file with layer-by-layer compression techniques and allows NUMA compression with multiple nodes.
+- Support compression of extremely large single file with layer-by-layer compression techniques and allows MPI compression with multiple nodes.
 - Include genome sequence compression and support parallel compression.
 - Intuitive way to set multiple errorbounds for different value ranges/regions with SZ_REGION compression.
 - PyQt5 user interface
@@ -59,13 +59,13 @@ In the `~/.globus_compute/default` folder, there is a `config.yaml` file, we nee
 amqp_port: 443
 display_name: null
 engine:
-    provider:
-        worker_init: module load anaconda/2021.05-py38 && conda activate globazip
-        init_blocks: 1
-        max_blocks: 1
-        min_blocks: 0
-        type: LocalProvider
-    type: GlobusComputeEngine
+  provider:
+    worker_init: module load anaconda/2021.05-py38 && conda activate globazip
+    init_blocks: 1
+    max_blocks: 1
+    min_blocks: 0
+    type: LocalProvider
+  type: GlobusComputeEngine
 ```
 
 The `work_dir` is where the compressed/decompressed files, batch job files and other data metrics files will be stored. You can change it later in the app. The configuration serves as a convenient method to load everything in one click at the beginning. The `defaults` contains important information about submitting batch jobs and the compressor executable paths. We currently support 4 compressors: sz3, sz_split, sz_region, fastqzip. More compressors can be added into the framework. In the `scripts` folder, we provide the scripts to install the compressors. Make sure you install the compressors in the configured remote machines instead of your laptop.
@@ -86,7 +86,7 @@ Then you can start the GUI app by running the `pyqt5app.py`. Please ensure that 
 python pyqt5app.py
 ```
 
-The interface looks like the following, and users should use the `Load Config` buttons to load the configuration for two machines. 
+The interface looks like the following, and users should use the `Load Config` buttons to load the configuration for two machines.
 
 ![Globazip UI](figures/globazip-ui.png)
 
