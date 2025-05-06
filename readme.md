@@ -1,6 +1,6 @@
-# GlobaZip
+# Ocelot
 
-GlobaZip is a compression and transfer framework that orchestrates tasks on remote machines. Currently, we suppport two types of data: floating-point tensors and genome sequence data. The floating-point tensor data files are usually planar (e.g. [CESM dataset](https://climatedata.ibs.re.kr/data/cesm2-lens) 1800x3600) or cubic (e.g. [Nyx dataset](https://ieee-dataport.org/open-access/nyx-cosmological-simulation-dataset) 512x512x512). Some extremely large single file can be over 900 GB (e.g. [Turbulent Channel Flow](https://klacansky.com/open-scivis-datasets/category-simulation.html) 10240x7680x1536). For genome sequence data, many are distributed in gzipped FastQ files. Some example datasets include [CNX0547764](https://db.cngb.org/search/experiment/CNX0547764/), [CNX0145971](https://db.cngb.org/search/experiment/CNX0145971/), and [BGISEQ500](https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/). We provide a novel algorithm to further compress those files with a reference sequence. The goal of this project is to provide a friendly user-interface for users to compress, transfer and store these huge datasets.
+Ocelot is a compression and transfer framework that orchestrates tasks on remote machines. Currently, we suppport two types of data: floating-point tensors and genome sequence data. The floating-point tensor data files are usually planar (e.g. [CESM dataset](https://climatedata.ibs.re.kr/data/cesm2-lens) 1800x3600) or cubic (e.g. [Nyx dataset](https://ieee-dataport.org/open-access/nyx-cosmological-simulation-dataset) 512x512x512). Some extremely large single file can be over 900 GB (e.g. [Turbulent Channel Flow](https://klacansky.com/open-scivis-datasets/category-simulation.html) 10240x7680x1536). For genome sequence data, many are distributed in gzipped FastQ files. Some example datasets include [CNX0547764](https://db.cngb.org/search/experiment/CNX0547764/), [CNX0145971](https://db.cngb.org/search/experiment/CNX0145971/), and [BGISEQ500](https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/BGISEQ500/). We provide a novel algorithm to further compress those files with a reference sequence. The goal of this project is to provide a friendly user-interface for users to compress, transfer and store these huge datasets.
 
 ## New Features
 
@@ -47,8 +47,8 @@ A configuration file includes the above fields. Specify a `name` for the machine
 
 ```bash
 module load anaconda/2021.05-py38
-conda create --name globazip python=3.11
-conda activate globazip
+conda create --name Ocelot python=3.11
+conda activate Ocelot
 pip install globus-compute-endpoint matplotlib
 globus-compute-endpoint configure
 ```
@@ -60,7 +60,7 @@ amqp_port: 443
 display_name: null
 engine:
   provider:
-    worker_init: module load anaconda/2021.05-py38 && conda activate globazip
+    worker_init: module load anaconda/2021.05-py38 && conda activate Ocelot
     init_blocks: 1
     max_blocks: 1
     min_blocks: 0
@@ -75,8 +75,8 @@ The `work_dir` is where the compressed/decompressed files, batch job files and o
 This repo is a GUI-based app that makes remote function calls to run (de)compression/transfer on multiple computing clusters. To run the app, create a conda virutal environment locally and install the dependencies with the following commands.
 
 ```bash
-conda create --name globazip python=3.11
-conda activate globazip
+conda create --name Ocelot python=3.11
+conda activate Ocelot
 pip install -r requirements.txt
 ```
 
@@ -88,7 +88,7 @@ python pyqt5app.py
 
 The interface looks like the following, and users should use the `Load Config` buttons to load the configuration for two machines.
 
-![Globazip UI](figures/globazip-ui.png)
+![Ocelot UI](figures/Ocelot-ui.png)
 
 The data preview looks like the following. Users can accept the setting and use SZ_REGION to compress one data file with multiple error bound settings.
 
