@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GlobaZip</string>
+   <string>Ocelot</string>
   </property>
   <widget class="QTabWidget" name="compressorTabWdiget">
    <property name="geometry">
