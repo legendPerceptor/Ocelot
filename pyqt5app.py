@@ -147,7 +147,7 @@ class CompressorCmdFactory():
 class UI(QDialog):
     def __init__(self):
         super(UI, self).__init__()
-        uic.loadUi("globazip.ui", self)
+        uic.loadUi("ocelot.ui", self)
 
         self.globus_client_id = "1fb9c8a9-1aff-4d46-9f37-e3b0d44194f2"
         self.globus_token_filename = "globus_tokens.json"
