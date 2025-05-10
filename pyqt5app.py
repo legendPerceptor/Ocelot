@@ -1345,6 +1345,7 @@ class UI(QDialog):
                 token_file_name=self.globus_token_filename,
                 proxystore_dir=cwd,
                 collections=collections,
+                session_domains=["access-ci.org"] # TODO: make the domain editable in the GUI.
             )
             self.globus_authorizer = globus_utils.get_proxystore_authorizer(globus_client_id, self.globus_token_filename, cwd)
             self.tc = globus_sdk.TransferClient(authorizer=self.globus_authorizer)

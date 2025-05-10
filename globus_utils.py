@@ -87,6 +87,7 @@ def authenticate_gui(
     w: QDialog,
     client_id:str,
     requested_scopes: Iterable[str] | None = None,
+    session_domains: Iterable[str] | None = None
 ) -> globus_sdk.OAuthTokenResponse:
     """Perform Native App auth flow."""
     client = globus_sdk.NativeAppAuthClient(client_id=client_id)
@@ -96,7 +97,7 @@ def authenticate_gui(
         requested_scopes=requested_scopes,
     )
 
-    url = client.oauth2_get_authorize_url()
+    url = client.oauth2_get_authorize_url(session_required_single_domain=session_domains)
     print(f'Please visit the following url to authenticate:\n{url}')
     auth_code, ok = QInputDialog.getText(w, "Globus Authenticate", f'Please paste the authenticate code in')
     if ok:
@@ -170,6 +171,7 @@ def proxystore_authenticate(
     token_file_name: str,
     collections: list[str] | None = None,
     additional_scopes: list[str] | None = None,
+    session_domains : Iterable[str] | None = None
 ) -> None:
     """Perform auth flow for ProxyStore native app."""
     tokens_file = os.path.join(proxystore_dir, token_file_name)
@@ -181,6 +183,7 @@ def proxystore_authenticate(
         w=w,
         client_id=client_id,
         requested_scopes=scopes,
+        session_domains=session_domains
     )
     save_tokens_to_file(tokens_file, tokens)
 
@@ -218,6 +221,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         help='Additional scopes to request.',
     )
     parser.add_argument(
+        '--domains',
+        nargs='+',
+        help="The special session domains required for the authentication.",
+    )
+
+    parser.add_argument(
         '--delete',
         action='store_true',
         help='Delete existing authentication tokens.',
@@ -243,7 +252,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         proxystore_authenticate(
             collections=args.collections,
             additional_scopes=args.scopes,
-        )
+            session_domains=args.domains)
         get_proxystore_authorizer(_APPLICATION_ID, _TOKENS_FILE, home_dir_)
         print('Globus authorization complete.')
         return 0
