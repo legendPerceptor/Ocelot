@@ -88,10 +88,10 @@ python pyqt5app.py
 
 The interface looks like the following, and users should use the `Load Config` buttons to load the configuration for two machines.
 
-![Ocelot UI](figures/Ocelot-ui.png)
+![Ocelot UI](figures/OcelotUI.png)
 
 The data preview looks like the following. Users can accept the setting and use SZ_REGION to compress one data file with multiple error bound settings.
 
-![Data Preview](figures/data-preview-ui.png)
+![Data Preview](figures/OcelotTensorPreivewWithMultiSelection.png)
 
 SZ_SPLIT and Genome compression will submit a batch job as they target at compressing very large files that do not fit into memory and takes relatively long time. SZ_REGION and SZ3 directly run the program on the target machine. For supercomputers, they are usually the login nodes and users should not run heavy compression jobs on them.
